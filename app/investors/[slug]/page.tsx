@@ -5,6 +5,6 @@ export default function OldProfileRedirect({
 }: {
   params: { slug: string };
 }) {
-  redirect(`/profile/${params.slug}`, 301);
+  redirect(`/profile/${params.slug}`);
 }
 

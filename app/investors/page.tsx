@@ -28,26 +28,20 @@ interface Pagination {
 }
 
 const rotatingWords = ["Stacks", "Syndicates", "Signals"];
-const partnerBrands = [
-  "Atlas Capital",
-  "Lumen Partners",
-  "Orion Ventures",
-  "Helios Labs",
-];
 
-function DummyLogo() {
+function Logo() {
   return (
-    <div className="inline-flex items-center gap-3 rounded-2xl border border-white/40 bg-white/70 px-4 py-2 shadow-lg backdrop-blur">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[rgba(10,102,194,1)] to-[rgba(10,102,194,0.6)] text-lg font-semibold text-white shadow-inner">
+    <Link href="/" className="inline-flex items-center gap-2.5 group">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[rgba(10,102,194,1)] to-[rgba(10,102,194,0.75)] text-base font-semibold text-white shadow-[0_4px_12px_rgba(10,102,194,0.3)] transition-transform group-hover:scale-105">
         SS
       </div>
       <div className="text-left">
-        <p className="text-[11px] uppercase tracking-[0.35em] text-slate-500">
+        <p className="text-[10px] uppercase tracking-[0.4em] text-slate-400 font-medium">
           Supershares
         </p>
-        <p className="text-sm font-semibold text-slate-700">Investor Registry</p>
+        <p className="text-xs font-semibold text-slate-700 leading-tight">Registry</p>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -112,109 +106,92 @@ export default function InvestorsPage() {
     {
       label: "Investors listed",
       value: totalInvestors.toLocaleString(),
-      helper: "ready for co-investment",
     },
     {
       label: "Verified on X",
       value: verifiedCount.toLocaleString(),
-      helper: "identity confirmed",
     },
     {
       label: "Active niches",
       value: uniqueNichesCount.toLocaleString(),
-      helper: "specialist verticals",
     },
   ];
 
   return (
     <div
-      className="relative min-h-screen overflow-hidden text-ss.text"
+      className="relative min-h-screen overflow-hidden"
       style={{
-        background: "linear-gradient(180deg,#F8FBFF 0%,#EEF3FF 45%,#FCFDFF 100%)",
+        background: "linear-gradient(180deg,#FAFCFF 0%,#F1F6FF 50%,#FAFCFF 100%)",
       }}
     >
-      <div className="pointer-events-none absolute -top-40 -left-32 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(10,102,194,0.16),transparent_70%)] blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-48 -right-32 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(10,102,194,0.15),transparent_70%)] blur-3xl" />
+      {/* Ambient gradients */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute -top-40 -left-32 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(10,102,194,0.12),transparent_70%)] blur-3xl" />
+        <div className="absolute top-1/2 -right-32 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.08),transparent_70%)] blur-3xl" />
+      </div>
 
-      {/* Hero */}
-      <section className="relative max-w-6xl mx-auto px-4 md:px-6 pt-24 pb-16">
-        <GlassCard className="relative overflow-hidden border border-white/60 bg-white/75 md:p-12 p-8 shadow-[0_35px_120px_-45px_rgba(15,23,42,0.65)]">
-          <div className="pointer-events-none absolute inset-x-10 -top-20 h-32 rounded-full bg-gradient-to-r from-transparent via-white/50 to-transparent blur-3xl" />
-          <div className="relative z-10 flex flex-col items-center gap-6 text-center">
-            <DummyLogo />
+      {/* Logo - Top Left */}
+      <div className="fixed top-6 left-6 z-50">
+        <Logo />
+      </div>
 
-            <h1 className="text-[40px] md:text-[56px] font-semibold tracking-tight flex items-baseline justify-center gap-3">
-              <span className="text-[rgba(10,102,194,1)]">Super</span>
-              <RotatingText
-                words={rotatingWords}
-                className="text-[rgba(10,102,194,0.75)] font-semibold"
-                interval={2400}
-              />
-            </h1>
-            <p className="max-w-3xl text-[16px] md:text-[18px] leading-relaxed text-slate-600">
-              The curated home for capital allocators with conviction. Discover and connect
-              with investors building the future of on-chain finance.
-            </p>
+      {/* Hero Section - Minimal */}
+      <section className="relative max-w-5xl mx-auto px-4 md:px-6 pt-32 pb-20">
+        <div className="flex flex-col items-center text-center space-y-8">
+          <h1 className="text-[42px] md:text-[64px] font-semibold tracking-tight leading-[1.1]">
+            <span className="text-[rgba(10,102,194,1)]">Super</span>
+            <RotatingText
+              words={rotatingWords}
+              className="text-[rgba(10,102,194,0.85)] font-semibold"
+              interval={2400}
+            />
+          </h1>
+          
+          <p className="max-w-2xl text-[18px] md:text-[20px] leading-relaxed text-slate-700 font-light">
+            Where capital meets conviction. The curated network for investors building
+            <span className="font-medium text-slate-900"> the future of on-chain finance</span>.
+          </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link href={user ? "/account" : "/signin"}>
-                <Button className="px-6 py-3 text-[15px] shadow-[0_20px_40px_-20px_rgba(10,102,194,0.6)]">
-                  Become an Investor
-                </Button>
-              </Link>
-              <Link
-                href="#registry"
-                className="inline-flex items-center gap-2 rounded-2xl border border-[rgba(10,102,194,0.25)] bg-white/80 px-6 py-3 text-[15px] font-medium text-[rgba(10,102,194,1)] shadow-sm transition hover:border-[rgba(10,102,194,0.35)] hover:bg-white"
-              >
-                Explore the registry
-              </Link>
-            </div>
-
-            <div className="mt-10 grid w-full gap-4 md:grid-cols-3">
-              {metrics.map((metric) => (
-                <div
-                  key={metric.label}
-                  className="rounded-2xl border border-white/70 bg-white/85 px-6 py-5 text-left shadow-[0_18px_45px_-30px_rgba(15,23,42,0.8)] backdrop-blur"
-                >
-                  <p className="text-3xl font-semibold text-slate-900">
-                    {metric.value}
-                  </p>
-                  <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-                    {metric.label}
-                  </p>
-                  <p className="mt-2 text-sm text-slate-500">{metric.helper}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 w-full">
-              <p className="text-xs uppercase tracking-[0.45em] text-slate-400">Trusted by operators from</p>
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm font-medium text-slate-500">
-                {partnerBrands.map((brand) => (
-                  <span
-                    key={brand}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/80 px-4 py-2 shadow-sm"
-                  >
-                    <span className="h-2 w-2 rounded-full bg-[rgba(10,102,194,0.6)]" />
-                    {brand}
-                  </span>
-                ))}
-              </div>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link href={user ? "/account" : "/signin"}>
+              <Button className="px-8 py-3 text-[15px] font-medium shadow-[0_16px_32px_-12px_rgba(10,102,194,0.4)]">
+                Join the Network
+              </Button>
+            </Link>
+            <Link
+              href="#registry"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/60 px-6 py-3 text-[15px] font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white/80"
+            >
+              Explore Investors
+            </Link>
           </div>
-        </GlassCard>
+
+          {/* Subtle Metrics Bar */}
+          <div className="flex flex-wrap items-center justify-center gap-8 pt-8 border-t border-slate-200/50 w-full max-w-3xl">
+            {metrics.map((metric) => (
+              <div key={metric.label} className="text-center">
+                <p className="text-[28px] md:text-[32px] font-semibold text-slate-900 leading-none">
+                  {metric.value}
+                </p>
+                <p className="mt-1.5 text-[11px] uppercase tracking-[0.25em] text-slate-500 font-medium">
+                  {metric.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Search + Registry */}
       <section id="registry" className="relative max-w-7xl mx-auto px-4 md:px-6 pb-24">
-        <GlassCard className="flex flex-col gap-6 border border-white/60 bg-white/85 md:flex-row md:items-center md:justify-between md:p-8 p-6 shadow-[0_30px_80px_-50px_rgba(15,23,42,0.6)]">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-12">
           <div>
-            <h2 className="text-[24px] font-semibold text-slate-900">Browse Investors</h2>
-            <p className="text-sm text-slate-500">
-              Filter the registry to uncover partners aligned with your thesis.
+            <h2 className="text-[28px] md:text-[32px] font-semibold text-slate-900 mb-2">Investor Registry</h2>
+            <p className="text-[15px] text-slate-600 font-light">
+              Discover partners aligned with your investment thesis
             </p>
           </div>
-          <div className="w-full md:w-[360px]">
+          <div className="w-full md:w-[380px]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <Input
@@ -225,95 +202,91 @@ export default function InvestorsPage() {
                   setPage(1);
                 }}
                 placeholder="Search by name, handle, or niche"
-                className="pl-12 shadow-inner"
+                className="pl-12 bg-white/80 border-slate-200/80 backdrop-blur-sm"
               />
             </div>
           </div>
-        </GlassCard>
+        </div>
 
-        <div className="mt-12">
+        <div>
           {isLoading ? (
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="rounded-3xl border border-white/60 bg-white/70 p-8 shadow-[0_20px_55px_-45px_rgba(15,23,42,1)] backdrop-blur animate-pulse"
+                  className="rounded-2xl border border-slate-200/60 bg-white/60 p-6 backdrop-blur-sm animate-pulse"
                 >
-                  <div className="h-6 w-2/3 rounded-full bg-slate-200/70" />
-                  <div className="mt-4 h-4 w-3/4 rounded-full bg-slate-200/60" />
-                  <div className="mt-6 flex gap-3">
-                    <div className="h-6 w-20 rounded-full bg-slate-200/60" />
-                    <div className="h-6 w-24 rounded-full bg-slate-200/50" />
+                  <div className="h-6 w-2/3 rounded-full bg-slate-200/60" />
+                  <div className="mt-4 h-4 w-3/4 rounded-full bg-slate-200/40" />
+                  <div className="mt-6 flex gap-2">
+                    <div className="h-5 w-20 rounded-full bg-slate-200/40" />
+                    <div className="h-5 w-24 rounded-full bg-slate-200/30" />
                   </div>
                 </div>
               ))}
             </div>
           ) : error ? (
-            <GlassCard className="border border-red-100 bg-red-50/70 text-center text-red-600 shadow-[0_25px_60px_-45px_rgba(248,113,113,0.6)]">
-              <h3 className="text-lg font-semibold">We couldn’t load the registry.</h3>
-              <p className="mt-2 text-sm text-red-500">
-                {error} — verify your database connection in <code className="font-mono">.env.local</code>.
+            <div className="rounded-2xl border border-red-100/80 bg-red-50/60 text-center p-8 backdrop-blur-sm">
+              <h3 className="text-lg font-semibold text-red-700">We couldn&apos;t load the registry.</h3>
+              <p className="mt-2 text-sm text-red-600/80">
+                {error} — verify your database connection in <code className="font-mono text-red-700">.env.local</code>.
               </p>
-            </GlassCard>
+            </div>
           ) : cleaned.length === 0 ? (
-            <GlassCard className="border border-white/70 bg-white/80 text-center shadow-[0_30px_80px_-50px_rgba(15,23,42,0.5)]">
-              <h3 className="text-2xl font-semibold text-slate-900">Be the signal.</h3>
-              <p className="mt-3 text-sm text-slate-500">
+            <div className="rounded-2xl border border-slate-200/80 bg-white/60 text-center p-12 backdrop-blur-sm">
+              <h3 className="text-2xl font-semibold text-slate-900 mb-3">Be the signal.</h3>
+              <p className="text-[15px] text-slate-600 mb-6 font-light">
                 The first wave of profiles sets the tone for the network. List your profile to
                 join the founding cohort.
               </p>
-              <div className="mt-6 flex justify-center">
-                <Link href={user ? "/account" : "/signin"}>
-                  <Button className="px-6 py-2.5">Create your profile</Button>
-                </Link>
-              </div>
-            </GlassCard>
+              <Link href={user ? "/account" : "/signin"}>
+                <Button className="px-6 py-2.5">Create your profile</Button>
+              </Link>
+            </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {cleaned.map((investor) => (
                   <Link
                     key={investor.slug}
                     href={`/profile/${investor.slug}`}
-                    className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(10,102,194,0.35)]"
+                    className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(10,102,194,0.25)] rounded-2xl"
                   >
-                    <div className="relative rounded-3xl border border-white/60 bg-white/80 p-1 shadow-[0_25px_70px_-45px_rgba(15,23,42,0.5)] transition-transform duration-200 group-hover:-translate-y-1">
-                      <div className="rounded-[1.5rem] bg-gradient-to-br from-white via-white/90 to-white/60">
-                        <ProfileCard
-                          name={investor.name}
-                          title={investor.headline}
-                          handle={investor.xHandle}
-                          status={investor.verified ? "Verified" : "Unverified"}
-                          verified={investor.verified}
-                          niches={investor.niches}
-                          showUserInfo
-                          enableTilt
-                          enableMobileTilt={false}
-                        />
-                      </div>
+                    <div className="relative rounded-2xl border border-slate-200/60 bg-white/70 backdrop-blur-sm p-6 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-slate-300/80 group-hover:bg-white/90 group-hover:shadow-[0_20px_50px_-15px_rgba(15,23,42,0.15)]">
+                      <ProfileCard
+                        name={investor.name}
+                        title={investor.headline}
+                        handle={investor.xHandle}
+                        status={investor.verified ? "Verified" : "Unverified"}
+                        verified={investor.verified}
+                        niches={investor.niches}
+                        showUserInfo
+                        enableTilt
+                        enableMobileTilt={false}
+                      />
                     </div>
                   </Link>
                 ))}
               </div>
 
               {pagination && pagination.totalPages > 1 && (
-                <div className="mt-12 flex items-center justify-center gap-4">
+                <div className="mt-12 flex items-center justify-center gap-3">
                   <button
                     type="button"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="rounded-full border border-white/70 bg-white/80 px-5 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-full border border-slate-200/80 bg-white/70 px-5 py-2 text-sm font-medium text-slate-700 transition hover:bg-white hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/70"
                   >
                     Previous
                   </button>
-                  <span className="rounded-full border border-white/60 bg-white/90 px-5 py-2 text-sm font-medium text-slate-500 shadow-inner">
+                  <span className="rounded-full bg-slate-50/80 border border-slate-200/60 px-5 py-2 text-sm font-medium text-slate-600">
                     Page {pagination.page} of {pagination.totalPages}
                   </span>
                   <button
                     type="button"
                     onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
                     disabled={page === pagination.totalPages}
-                    className="rounded-full border border-white/70 bg-white/80 px-5 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-full border border-slate-200/80 bg-white/70 px-5 py-2 text-sm font-medium text-slate-700 transition hover:bg-white hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/70"
                   >
                     Next
                   </button>
