@@ -86,6 +86,9 @@ interface TokenInfo {
   balanceRaw?: string; // Raw amount string (with decimals)
 }
 
+// Mark route as dynamic since it processes request body and makes external API calls
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { pubkey } = await request.json();

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Investor from "@/models/Investor";
 
+// Mark route as dynamic since it uses request.url for query parameters
+export const dynamic = 'force-dynamic';
+
 const PAGE_SIZE = 12;
 
 export async function GET(request: NextRequest) {

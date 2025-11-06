@@ -10,6 +10,9 @@ import {
 } from "@/lib/utils";
 import { z } from "zod";
 
+// Mark route as dynamic since it uses cookies for authentication
+export const dynamic = 'force-dynamic';
+
 const topInvestmentSchema = z.object({
   projectName: z.string().min(1).max(200),
   tokenCA: z.string().min(1).max(44),

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Investor from "@/models/Investor";
 
+// Mark route as dynamic since it uses dynamic route parameters
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }
