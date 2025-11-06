@@ -4,29 +4,29 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-blue-50 via-white to-blue-50 text-gray-900 antialiased;
+    @apply bg-[#1a1a1a] text-white antialiased;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-semibold tracking-tight text-white;
   }
 }
 
 @layer components {
   .ss-glass {
-    @apply bg-white/80 backdrop-blur-lg border border-white/60 rounded-2xl shadow-xl;
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl;
     @apply transition-shadow duration-300;
   }
 
   .ss-glass:hover {
-    @apply shadow-2xl;
+    @apply shadow-2xl border-white/20;
   }
 
   .ss-button {
-    @apply relative px-6 py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-accent to-accent/90 backdrop-blur-sm border border-accent/20 shadow-lg;
+    @apply relative px-6 py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 backdrop-blur-sm border border-orange-500/20 shadow-lg;
     @apply transition-all duration-300 ease-out;
-    @apply hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] hover:from-accent/95 hover:to-accent;
+    @apply hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] hover:from-orange-600 hover:to-orange-700;
     overflow: hidden;
   }
 
@@ -52,7 +52,7 @@
   }
 
   .ss-button-secondary {
-    @apply bg-white/90 text-gray-800 border border-gray-300 hover:bg-white hover:border-gray-400 shadow-md hover:shadow-lg;
+    @apply bg-white/5 text-white/80 border border-white/20 hover:bg-white/10 hover:text-orange-500 hover:border-orange-500/50 shadow-md hover:shadow-lg;
     @apply font-medium;
   }
 
@@ -66,9 +66,25 @@
   }
 
   .ss-input {
-    @apply w-full px-4 py-3 rounded-xl border border-gray-200 bg-white/90 backdrop-blur-sm;
-    @apply focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/50 focus:bg-white;
-    @apply transition-all duration-200 placeholder:text-gray-400;
+    @apply w-full px-4 py-3 rounded-lg border border-gray-200 bg-white;
+    @apply focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white;
+    @apply transition-all duration-200 placeholder:text-gray-400 text-sm;
+    @apply hover:border-gray-300;
+  }
+
+  .ss-input-dark {
+    @apply border-white/20 bg-white/5 text-white;
+    @apply focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white/5;
+    @apply hover:border-orange-500/50 hover:bg-white/5;
+    @apply placeholder:text-white/40;
+  }
+
+  .ss-input-dark:focus {
+    @apply bg-white/5 !important;
+  }
+
+  .ss-input-dark:hover {
+    @apply bg-white/5 !important;
   }
 
   .ss-input:disabled {
@@ -77,13 +93,31 @@
 
   .ss-textarea {
     @apply ss-input resize-none;
-    min-height: 120px;
+    min-height: 140px;
+    @apply leading-relaxed;
+  }
+
+  .ss-textarea.ss-input-dark {
+    @apply bg-white/5 !important;
+  }
+
+  .ss-textarea.ss-input-dark:focus {
+    @apply bg-white/5 !important;
+  }
+
+  .ss-textarea.ss-input-dark:hover {
+    @apply bg-white/5 !important;
   }
 
   .ss-chip {
-    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 text-accent border border-accent/20;
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/20 text-orange-500 border border-orange-500/30;
     @apply text-sm font-medium transition-all duration-200;
-    @apply hover:bg-accent/15 hover:border-accent/30;
+    @apply hover:bg-orange-500/30 hover:border-orange-500/50;
+  }
+
+  .ss-chip-dark {
+    @apply bg-orange-500/20 text-orange-500 border-orange-500/30;
+    @apply hover:bg-orange-500/30 hover:border-orange-500/50;
   }
 
   .ss-chip-remove {

@@ -106,7 +106,7 @@ const AuthSchema = new Schema<IAuth>({
   xId: {
     type: String,
     required: true,
-    index: true,
+    index: true, // This creates an index, don't add another one below
   },
 });
 
@@ -115,7 +115,7 @@ const InvestorSchema = new Schema<IInvestor>(
     slug: {
       type: String,
       required: true,
-      unique: true,
+      unique: true, // This creates an index, don't add another one below
       lowercase: true,
       trim: true,
       match: /^[a-z0-9-]+$/,
@@ -184,9 +184,9 @@ const InvestorSchema = new Schema<IInvestor>(
   }
 );
 
-InvestorSchema.index({ slug: 1 }, { unique: true });
+// Removed duplicate index for slug (already has unique: true above)
 InvestorSchema.index({ name: "text", niches: "text" });
-InvestorSchema.index({ "auth.xId": 1 });
+// Removed duplicate index for auth.xId (already has index: true above)
 
 const Investor: Model<IInvestor> =
   mongoose.models.Investor || mongoose.model<IInvestor>("Investor", InvestorSchema);

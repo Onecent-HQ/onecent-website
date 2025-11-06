@@ -14,10 +14,13 @@ export default function Button({
   disabled,
   ...props
 }: ButtonProps) {
+  const isAccountPage = typeof window !== 'undefined' && window.location.pathname === '/account';
   const baseClasses = "ss-button disabled:opacity-50 disabled:cursor-not-allowed font-medium text-base";
   const variantClasses =
     variant === "secondary"
-      ? "bg-white/90 text-gray-800 border-gray-300 hover:bg-white hover:border-gray-400 shadow-md hover:shadow-lg"
+      ? isAccountPage
+        ? "bg-white/5 text-white/80 border-white/20 hover:bg-white/10 hover:text-orange-500 hover:border-orange-500/50 shadow-md"
+        : "bg-white/90 text-gray-800 border-gray-300 hover:bg-white hover:border-gray-400 shadow-md hover:shadow-lg"
       : "";
 
   return (

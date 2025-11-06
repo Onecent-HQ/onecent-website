@@ -1,7 +1,7 @@
 import { createCivicAuthPlugin } from "@civic/auth/nextjs";
 
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false, // Disable to prevent double mounting in dev which causes duplicate OAuth calls
 };
 
 const baseUrl = process.env.BASE_URL || "http://localhost:3000";

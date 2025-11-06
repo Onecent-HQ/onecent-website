@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Sanitize text fields
+    // Sanitize text fields and ensure topInvestments only contain projectName and tokenCA (no balance/holdings)
     const sanitizedData = {
       name: sanitizeText(data.name, 80),
       headline: data.headline ? sanitizeText(data.headline, 140) : undefined,
@@ -84,7 +84,11 @@ export async function POST(request: NextRequest) {
       xHandle: data.xHandle ? sanitizeText(data.xHandle.replace("@", ""), 50) : undefined,
       telegram: data.telegram ? sanitizeText(data.telegram.replace("@", ""), 50) : undefined,
       niches: data.niches || [],
-      topInvestments: data.topInvestments || [],
+      topInvestments: (data.topInvestments || []).map((inv: any) => ({
+        // Only store projectName and tokenCA - never store balance/holdings data
+        projectName: inv.projectName,
+        tokenCA: inv.tokenCA,
+      })),
       prefs: data.prefs || {},
     };
 

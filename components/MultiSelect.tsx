@@ -26,6 +26,7 @@ export default function MultiSelect({
   const [otherValue, setOtherValue] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isAccountPage = typeof window !== 'undefined' && window.location.pathname === '/account';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -68,20 +69,20 @@ export default function MultiSelect({
   return (
     <div className="w-full relative z-50" ref={containerRef}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className={`block text-sm font-medium mb-2 ${isAccountPage ? 'text-white/90' : 'text-gray-700'}`}>
           {label}
         </label>
       )}
       <div
         ref={dropdownRef}
-        className="ss-input min-h-[3rem] flex flex-wrap gap-2 items-center cursor-pointer"
+        className={`ss-input ${isAccountPage ? 'ss-input-dark' : ''} min-h-[3rem] flex flex-wrap gap-2 items-center cursor-pointer`}
         onClick={() => setIsOpen(!isOpen)}
       >
         {value.length === 0 ? (
-          <span className="text-gray-400">{placeholder}</span>
+          <span className={isAccountPage ? 'text-white/40' : 'text-gray-400'}>{placeholder}</span>
         ) : (
           value.map((item) => (
-            <span key={item} className="ss-chip">
+            <span key={item} className={`ss-chip ${isAccountPage ? 'ss-chip-dark' : ''}`}>
               {item}
               <button
                 type="button"
@@ -97,11 +98,11 @@ export default function MultiSelect({
             </span>
           ))
         )}
-        <ChevronDown className={`w-5 h-5 text-gray-400 ml-auto transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-5 h-5 ml-auto transition-transform ${isAccountPage ? 'text-white/60' : 'text-gray-400'} ${isOpen ? "rotate-180" : ""}`} />
       </div>
 
       {isOpen && (
-        <div className="absolute z-[9999] w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-200 max-h-60 overflow-auto">
+        <div className={`absolute z-[9999] w-full mt-1 rounded-xl shadow-xl border max-h-60 overflow-auto ${isAccountPage ? 'bg-[#1a1a1a] border-white/20' : 'bg-white border-gray-200'}`}>
           {options.map((option) => (
             <button
               key={option}
@@ -109,15 +110,21 @@ export default function MultiSelect({
               onClick={() => {
                 handleToggle(option);
               }}
-              className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
-                value.includes(option) ? "bg-accent/10 text-accent font-medium" : ""
+              className={`w-full text-left px-4 py-2 transition-colors ${
+                isAccountPage
+                  ? value.includes(option)
+                    ? "bg-orange-500/20 text-orange-500 font-medium"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                  : value.includes(option)
+                    ? "bg-accent/10 text-accent font-medium hover:bg-gray-50"
+                    : "hover:bg-gray-50"
               }`}
             >
               {option}
             </button>
           ))}
           {allowOther && (
-            <div className="border-t border-gray-200 p-2">
+            <div className={`border-t p-2 ${isAccountPage ? 'border-white/10' : 'border-gray-200'}`}>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -130,12 +137,20 @@ export default function MultiSelect({
                     }
                   }}
                   placeholder="Other..."
-                  className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/30"
+                  className={`flex-1 px-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 ${
+                    isAccountPage
+                      ? 'bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:ring-orange-500/20 focus:border-orange-500'
+                      : 'border-gray-300 focus:ring-accent/30'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={handleAddOther}
-                  className="px-3 py-1.5 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent/90"
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+                    isAccountPage
+                      ? 'bg-orange-500 text-white hover:bg-orange-600'
+                      : 'bg-accent text-white hover:bg-accent/90'
+                  }`}
                 >
                   Add
                 </button>
@@ -146,7 +161,7 @@ export default function MultiSelect({
       )}
       
       {value.length > 0 && (
-        <p className="mt-1 text-xs text-gray-500">
+        <p className={`mt-1 text-xs ${isAccountPage ? 'text-white/50' : 'text-gray-500'}`}>
           {value.length}/{maxSelections} selected
         </p>
       )}

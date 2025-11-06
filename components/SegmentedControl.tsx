@@ -13,14 +13,16 @@ export default function SegmentedControl({
   options,
   label,
 }: SegmentedControlProps) {
+  const isAccountPage = typeof window !== 'undefined' && window.location.pathname === '/account';
+  
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className={`block text-sm font-medium mb-2 ${isAccountPage ? 'text-white/90' : 'text-gray-700'}`}>
           {label}
         </label>
       )}
-      <div className="inline-flex rounded-xl bg-gray-100 p-1 w-full">
+      <div className={`inline-flex rounded-xl p-1 w-full ${isAccountPage ? 'bg-white/10' : 'bg-gray-100'}`}>
         {options.map((option) => (
           <button
             key={option.value}
@@ -28,8 +30,12 @@ export default function SegmentedControl({
             onClick={() => onChange(option.value)}
             className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               value === option.value
-                ? "bg-white text-accent shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
+                ? isAccountPage
+                  ? "bg-white/20 text-orange-500 shadow-sm"
+                  : "bg-white text-accent shadow-sm"
+                : isAccountPage
+                  ? "text-white/70 hover:text-white hover:bg-white/10"
+                  : "text-gray-600 hover:text-gray-900"
             }`}
           >
             {option.label}

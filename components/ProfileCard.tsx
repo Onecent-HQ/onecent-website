@@ -110,7 +110,7 @@ export default function ProfileCard({
               />
             </div>
           ) : (
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-accent/20 to-accent/40 flex items-center justify-center text-3xl font-bold text-accent ring-4 ring-white/50 shadow-lg">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-500/20 to-orange-600/40 flex items-center justify-center text-3xl font-bold text-orange-500 ring-4 ring-white/10 shadow-lg">
               {name && name.length > 0 ? name.charAt(0).toUpperCase() : "?"}
             </div>
           )}
@@ -124,16 +124,16 @@ export default function ProfileCard({
         {/* Name and Title */}
         <div className="mb-4">
           <div className="flex items-center justify-center gap-2 mb-1">
-            <h3 className="text-2xl font-bold text-gray-900">{name || "Unknown"}</h3>
+            <h3 className="text-2xl font-bold text-white">{name || "Unknown"}</h3>
             {verified && (
-              <Verified className="w-5 h-5 text-green-600" />
+              <Verified className="w-5 h-5 text-green-400" />
             )}
           </div>
           {title && (
-            <p className="text-lg text-gray-600 font-medium">{title}</p>
+            <p className="text-lg text-white/70 font-medium">{title}</p>
           )}
           {handle && (
-            <div className="flex items-center justify-center gap-1 mt-2 text-gray-500">
+            <div className="flex items-center justify-center gap-1 mt-2 text-white/60">
               <XLogo className="w-4 h-4" />
               <span className="text-sm">@{handle}</span>
             </div>
@@ -143,10 +143,10 @@ export default function ProfileCard({
               <span
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
                   status === "Verified" || verified
-                    ? "bg-green-100 text-green-700"
+                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
                     : status === "Online"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-100 text-gray-600"
+                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                    : "bg-white/10 text-white/60 border border-white/20"
                 }`}
               >
                 <div
@@ -160,7 +160,7 @@ export default function ProfileCard({
 
         {/* Bio */}
         {bio && (
-          <p className="text-gray-600 mb-4 line-clamp-3">{bio}</p>
+          <p className="text-white/70 mb-4 line-clamp-3">{bio}</p>
         )}
 
         {/* Niches */}
@@ -169,7 +169,7 @@ export default function ProfileCard({
             {niches.slice(0, 4).map((niche, idx) => (
               <span
                 key={idx}
-                className="px-3 py-1 rounded-lg bg-accent/10 text-accent text-xs font-medium"
+                className="px-3 py-1 rounded-lg bg-orange-500/20 text-orange-500 text-xs font-medium border border-orange-500/30"
               >
                 {niche}
               </span>
