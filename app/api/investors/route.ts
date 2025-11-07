@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const [investors, total] = await Promise.all([
       Investor.find(query)
-        .select("slug name headline niches xHandle verified updatedAt")
+        .select("slug name headline niches xHandle verified updatedAt profileImage")
         .sort({ updatedAt: -1 })
         .skip(skip)
         .limit(PAGE_SIZE)

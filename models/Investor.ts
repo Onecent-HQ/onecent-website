@@ -29,6 +29,7 @@ export interface IInvestor extends Document {
   name: string;
   headline?: string;
   bio?: string;
+  profileImage?: string;
   xHandle?: string;
   telegram?: string;
   niches?: string[];
@@ -135,6 +136,10 @@ const InvestorSchema = new Schema<IInvestor>(
       type: String,
       trim: true,
       maxlength: 1000,
+    },
+    profileImage: {
+      type: String,
+      trim: true,
     },
     xHandle: {
       type: String,

@@ -101,13 +101,23 @@ export default function ProfileCard({
         <div className="relative inline-block mb-4">
           {avatarUrl ? (
             <div className="relative w-24 h-24 rounded-full overflow-hidden ring-4 ring-white/50 shadow-lg">
-              <Image
-                src={avatarUrl}
-                alt={name}
-                fill
-                className="object-cover"
-                sizes="96px"
-              />
+              {avatarUrl.startsWith('data:') ? (
+                // Base64 data URL - use regular img tag
+                <img
+                  src={avatarUrl}
+                  alt={name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                // Regular URL - use Next.js Image
+                <Image
+                  src={avatarUrl}
+                  alt={name}
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                />
+              )}
             </div>
           ) : (
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-500/20 to-orange-600/40 flex items-center justify-center text-3xl font-bold text-orange-500 ring-4 ring-white/10 shadow-lg">

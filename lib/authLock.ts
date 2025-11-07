@@ -1,7 +1,7 @@
 // Global auth lock to prevent multiple simultaneous OAuth attempts
 let authInProgress = false;
 let authLockTimestamp = 0;
-const AUTH_LOCK_DURATION = 60000; // 60 seconds lock (OAuth flows can take time)
+const AUTH_LOCK_DURATION = 30000; // 30 seconds lock (OAuth flows can take time)
 
 export function setAuthInProgress(value: boolean) {
   authInProgress = value;

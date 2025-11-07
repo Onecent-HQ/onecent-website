@@ -16,7 +16,8 @@ import WalletProvider from "@/components/WalletProvider";
 import { useUser } from "@civic/auth/react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { CheckCircle2, LogOut, ArrowLeft, XCircle, AlertCircle } from "lucide-react";
+import { CheckCircle2, LogOut, ArrowLeft, XCircle, AlertCircle, Upload, X } from "lucide-react";
+import XLogo from "@/components/XLogo";
 import { isAuthInProgress, setAuthInProgress, clearAuthLock } from "@/lib/authLock";
 
 // Investments Section Component with Wallet Integration
@@ -349,6 +350,7 @@ interface InvestorData {
   name: string;
   headline?: string;
   bio?: string;
+  profileImage?: string;
   xHandle?: string;
   telegram?: string;
   niches?: string[];
@@ -462,6 +464,7 @@ export default function AccountPage() {
     name: "",
     headline: "",
     bio: "",
+    profileImage: "",
     xHandle: "",
     telegram: "",
     niches: [],
@@ -526,6 +529,7 @@ export default function AccountPage() {
           name: data.investor.name || "",
           headline: data.investor.headline || "",
           bio: data.investor.bio || "",
+          profileImage: data.investor.profileImage || "",
           xHandle: data.investor.xHandle || "",
           telegram: data.investor.telegram || "",
           niches: data.investor.niches || [],
@@ -560,6 +564,12 @@ export default function AccountPage() {
         topInvestments: (formData.topInvestments || []).map(({ verified, notInWallet, balance, balanceRaw, decimals, ...inv }) => inv),
       };
 
+      // Log for debugging (remove in production)
+      console.log("Submitting profile data:", {
+        ...submitData,
+        profileImage: submitData.profileImage ? `${submitData.profileImage.substring(0, 50)}...` : "none"
+      });
+
       const response = await fetch("/api/investor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -585,6 +595,44 @@ export default function AccountPage() {
       setIsSaving(false);
     }
   };
+
+  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setToast({ message: "Please upload an image file", type: "error" });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setToast({ message: "Image size must be less than 5MB", type: "error" });
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setFormData((prev) => ({
+        ...prev,
+        profileImage: base64String,
+      }));
+    };
+    reader.onerror = () => {
+      setToast({ message: "Failed to read image file", type: "error" });
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
+  const removeImage = useCallback(() => {
+    setFormData((prev) => ({
+      ...prev,
+      profileImage: "",
+    }));
+  }, []);
 
   const addInvestment = useCallback(() => {
     setFormData((prev) => ({
@@ -872,6 +920,48 @@ export default function AccountPage() {
                   {(formData.bio?.length || 0)}/1000
                 </div>
               </div>
+              
+              {/* Profile Image Upload */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-white mb-2">
+                  Profile Image <span className="text-white/50 font-normal">(Optional)</span>
+                </label>
+                {formData.profileImage ? (
+                  <div className="relative inline-block">
+                    <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-white/20">
+                      <img
+                        src={formData.profileImage}
+                        alt="Profile preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="absolute -top-2 -right-2 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors"
+                      aria-label="Remove image"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-orange-500/50 transition-colors bg-white/5 hover:bg-white/10">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Upload className="w-8 h-8 mb-2 text-white/60" />
+                      <p className="mb-2 text-sm text-white/80">
+                        <span className="font-semibold">Click to upload</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-white/50">PNG, JPG, GIF up to 5MB</p>
+                    </div>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                    />
+                  </label>
+                )}
+              </div>
             </FieldGroup>
           </div>
 
@@ -884,12 +974,18 @@ export default function AccountPage() {
                   value={formData.xHandle}
                   onChange={(e) => setFormData({ ...formData, xHandle: e.target.value.replace("@", "") })}
                   placeholder="yourhandle"
+                  icon={<XLogo className="w-5 h-5" />}
                 />
                 <Input
                   label="Telegram Handle"
                   value={formData.telegram}
                   onChange={(e) => setFormData({ ...formData, telegram: e.target.value.replace("@", "") })}
                   placeholder="yourhandle"
+                  icon={
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.12l-6.87 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+                    </svg>
+                  }
                 />
               </div>
               <p className="text-sm text-white/60 mt-4 leading-relaxed">

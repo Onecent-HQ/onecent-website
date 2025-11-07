@@ -9,6 +9,7 @@ import connectDB from "@/lib/db";
 import Investor from "@/models/Investor";
 import ProfileNav from "./ProfileNav";
 import ShareProfile from "./ShareProfile";
+import SubscribeButton from "./SubscribeButton";
 
 export default async function ProfilePage({ params }: { params: { slug: string } }) {
   const { slug } = await params;
@@ -19,14 +20,20 @@ export default async function ProfilePage({ params }: { params: { slug: string }
     const investor = await Investor.findOne({ slug })
       .select("-__v -_id")
       .lean();
+    
+    // Ensure profileImage is included
+    const investorWithImage = investor ? {
+      ...investor,
+      profileImage: investor.profileImage || undefined,
+    } : null;
 
-    if (!investor) notFound();
+    if (!investorWithImage) notFound();
 
     // Gate Telegram; keep logic intact
     const publicInvestor = {
-      ...investor,
-      telegram: investor.contactPass?.enabled ? investor.telegram : undefined,
-      verified: investor.verified || false,
+      ...investorWithImage,
+      telegram: investorWithImage.contactPass?.enabled ? investorWithImage.telegram : undefined,
+      verified: investorWithImage.verified || false,
     } as any;
 
     const solscanUrl = (a: string) => `https://solscan.io/token/${a}`;
@@ -113,9 +120,27 @@ export default async function ProfilePage({ params }: { params: { slug: string }
                 <section className="grid items-center gap-10 md:grid-cols-[auto,1fr]">
                   <div className="relative flex items-center justify-center">
                     <div className="absolute inset-0 scale-125 rounded-full bg-gradient-to-br from-orange-500/10 via-transparent to-transparent blur-xl" />
-                    <div className="relative flex h-28 w-28 items-center justify-center rounded-3xl border border-white/20 bg-gradient-to-br from-white/10 via-white/5 to-orange-500/10 text-4xl font-semibold text-orange-500 shadow-[inset_0_10px_30px_rgba(0,0,0,0.3)] md:h-32 md:w-32 md:text-5xl">
-                      {publicInvestor.name?.charAt(0)?.toUpperCase() || "?"}
-                    </div>
+                    {publicInvestor.profileImage ? (
+                      <div className="relative h-28 w-28 md:h-32 md:w-32 rounded-3xl overflow-hidden border border-white/20 shadow-[inset_0_10px_30px_rgba(0,0,0,0.3)]">
+                        {publicInvestor.profileImage.startsWith('data:') ? (
+                          <img
+                            src={publicInvestor.profileImage}
+                            alt={publicInvestor.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <img
+                            src={publicInvestor.profileImage}
+                            alt={publicInvestor.name}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <div className="relative flex h-28 w-28 items-center justify-center rounded-3xl border border-white/20 bg-gradient-to-br from-white/10 via-white/5 to-orange-500/10 text-4xl font-semibold text-orange-500 shadow-[inset_0_10px_30px_rgba(0,0,0,0.3)] md:h-32 md:w-32 md:text-5xl">
+                        {publicInvestor.name?.charAt(0)?.toUpperCase() || "?"}
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-6">
                     <div className="space-y-3">
@@ -299,9 +324,7 @@ export default async function ProfilePage({ params }: { params: { slug: string }
                           <p className="text-[14px] text-white/70">
                             Unlock their direct line with a Supershares subscription.
                           </p>
-                          <Button variant="primary" className="w-full justify-center text-sm">
-                            Subscribe to Unlock
-                          </Button>
+                          <SubscribeButton />
                         </div>
                       )}
                     </section>

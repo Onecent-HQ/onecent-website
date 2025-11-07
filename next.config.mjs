@@ -9,7 +9,7 @@ const baseUrl = process.env.BASE_URL || "http://localhost:3000";
 const withCivicAuth = createCivicAuthPlugin({
   clientId: "d55ad109-681e-46c5-bb18-9aa1ed043695",
   baseUrl: baseUrl,
-  loginSuccessUrl: "/account",
+  loginSuccessUrl: "/investors",
   loginUrl: "/signin",
   logoutUrl: "/investors",
   exclude: [

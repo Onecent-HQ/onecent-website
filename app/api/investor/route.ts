@@ -22,6 +22,7 @@ const investorSchema = z.object({
   name: z.string().min(1).max(80),
   headline: z.string().max(140).optional(),
   bio: z.string().max(1000).optional(),
+  profileImage: z.string().optional(),
   xHandle: z.string().max(50).optional(),
   telegram: z.string().max(50).optional(),
   niches: z.array(z.string()).max(6).optional(),
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Sanitize text fields and ensure topInvestments only contain projectName and tokenCA (no balance/holdings)
-    const sanitizedData = {
+    const sanitizedData: any = {
       name: sanitizeText(data.name, 80),
       headline: data.headline ? sanitizeText(data.headline, 140) : undefined,
       bio: data.bio ? sanitizeText(data.bio, 1000) : undefined,
@@ -94,6 +95,17 @@ export async function POST(request: NextRequest) {
       })),
       prefs: data.prefs || {},
     };
+
+    // Handle profileImage - include it if provided (even if empty string, to allow clearing)
+    if (data.profileImage !== undefined && data.profileImage !== null) {
+      // Only save if it's a non-empty string (base64 data URL)
+      if (data.profileImage && data.profileImage.trim().length > 0) {
+        sanitizedData.profileImage = data.profileImage;
+      } else {
+        // Empty string means user wants to remove the image
+        sanitizedData.profileImage = undefined;
+      }
+    }
 
     // Generate and ensure unique slug
     const baseSlug = generateSlug(sanitizedData.name);
@@ -115,13 +127,16 @@ export async function POST(request: NextRequest) {
       slug = await ensureUniqueSlug(baseSlug, slugList);
     }
 
+    // Prepare update object
+    const updateData: any = {
+      slug,
+      ...sanitizedData,
+    };
+
     // Update investor
     const investor = await Investor.findByIdAndUpdate(
       currentInvestor._id,
-      {
-        slug,
-        ...sanitizedData,
-      },
+      updateData,
       { new: true, runValidators: true }
     );
 

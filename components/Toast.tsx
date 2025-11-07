@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import { X } from "lucide-react";
 
 interface ToastProps {
   message: string;
-  type?: "success" | "error";
+  type?: "success" | "error" | "info";
   onClose: () => void;
   duration?: number;
 }
@@ -23,15 +24,35 @@ export default function Toast({
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
+  // Dark theme styling to match the app
+  const getStyles = () => {
+    if (type === "error") {
+      return "bg-red-500/20 border-red-500/30 text-red-400";
+    }
+    if (type === "info") {
+      return "bg-white/5 border-white/20 text-white/90";
+    }
+    // success or default
+    return "bg-orange-500/20 border-orange-500/30 text-orange-400";
+  };
+
   return (
     <div
-      className={`fixed bottom-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg backdrop-blur-md ${
-        type === "success"
-          ? "bg-green-500/90 text-white"
-          : "bg-red-500/90 text-white"
-      } animate-in slide-in-from-bottom-5`}
+      className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-3 py-2 rounded-lg shadow-2xl backdrop-blur-xl border ${getStyles()} animate-in slide-in-from-bottom-5 fade-in`}
+      style={{
+        animation: "slideInUp 0.3s ease-out",
+      }}
     >
-      <p className="font-medium">{message}</p>
+      <div className="flex items-center gap-2">
+        <p className="font-medium text-xs">{message}</p>
+        <button
+          onClick={onClose}
+          className="ml-1 p-0.5 rounded hover:bg-white/10 transition-colors"
+          aria-label="Close"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      </div>
     </div>
   );
 }

@@ -17,6 +17,7 @@ interface Investor {
   niches?: string[];
   xHandle?: string;
   verified?: boolean;
+  profileImage?: string;
   updatedAt: string;
 }
 
@@ -186,6 +187,7 @@ function InvestorsListContent() {
                     handle={investor.xHandle}
                     verified={investor.verified}
                     niches={investor.niches}
+                    avatarUrl={investor.profileImage}
                     status={investor.verified ? "Verified" : "Unverified"}
                     showUserInfo={true}
                     enableTilt={true}

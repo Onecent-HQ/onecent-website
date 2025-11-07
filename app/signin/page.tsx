@@ -19,10 +19,8 @@ export default function SignInPage() {
   useEffect(() => {
     if (!hasInitRef.current) {
       hasInitRef.current = true;
-      // Clear any stuck auth locks when page loads
-      if (!isAuthInProgress()) {
-        // Only clear if not currently in progress
-      }
+      // Clear any stuck auth locks when page loads (if expired)
+      // This helps if user navigates back to signin page
     }
   }, []);
   
@@ -43,7 +41,8 @@ export default function SignInPage() {
     setAuthInProgress(true);
     
     console.log("Starting sign-in process");
-    signIn()
+    // Use redirect mode instead of iframe to avoid blocking issues
+    signIn({ displayMode: "redirect" })
       .then(() => {
         console.log("Sign-in completed successfully");
         // Don't reset here - let redirect happen
@@ -56,11 +55,11 @@ export default function SignInPage() {
       // Removed finally - let the redirect handle cleanup
   }, [signIn]);
   
-  // If user is already signed in, redirect to account
+  // If user is already signed in, redirect to investors page
   useEffect(() => {
     if (user && !authLoading) {
-      // User is signed in - redirect to account
-      window.location.href = "/account";
+      // User is signed in - redirect to investors page
+      window.location.href = "/investors";
     }
   }, [user, authLoading]);
   
