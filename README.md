@@ -21,6 +21,8 @@ npm run dev
 
 ## Environment Variables
 
+### Development (`.env.local`)
+
 Create a `.env.local` file in the root directory with:
 
 - `MONGODB_URI` - MongoDB connection string (must start with `mongodb://` or `mongodb+srv://`)
@@ -28,7 +30,69 @@ Create a `.env.local` file in the root directory with:
 - `BASE_URL` - Base URL for the application (e.g., `http://localhost:3000` for development)
 - `ADMIN_SECRET` - (Optional) Secret token for admin toggle endpoint. Used to enable contact pass after payment. Generate a random string. If not set, defaults to an insecure value (only for development).
 
-**Note:** The Civic Client ID is already configured in `next.config.ts`. You don't need to set it as an environment variable.
+### Production Environment Variables
+
+**CRITICAL:** Set these environment variables in your production hosting platform (Vercel, Railway, etc.):
+
+```env
+# Required - Your production domain (NO trailing slash)
+BASE_URL=https://yourdomain.com
+
+# Required - MongoDB connection string
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/dbname
+
+# Required - JWT secret (generate a strong random string)
+JWT_SECRET=your-production-jwt-secret-here
+
+# Required for production - Admin secret for contact pass
+ADMIN_SECRET=your-production-admin-secret-here
+
+# Optional - Solana configuration (defaults to devnet if not set)
+SOLANA_CLUSTER=mainnet-beta
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+NEXT_PUBLIC_SOLANA_CLUSTER=mainnet-beta
+NEXT_PUBLIC_SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+```
+
+**Important Notes:**
+1. **BASE_URL** must be your exact production domain (e.g., `https://supershares.com`) - this is critical for OAuth callbacks to work
+2. **No trailing slash** on BASE_URL
+3. **HTTPS required** in production (not http)
+4. Make sure your Civic Auth dashboard has the same callback URL configured
+5. The callback URL will be: `{BASE_URL}/api/auth/callback`
+
+**Note:** The Civic Client ID is already configured in `next.config.mjs`. You don't need to set it as an environment variable.
+
+### Troubleshooting OAuth Callback Issues
+
+If you're getting "This site can't be reached" on `/api/auth/callback`:
+
+1. **Check BASE_URL is set correctly:**
+   ```bash
+   # In your production environment, verify:
+   echo $BASE_URL
+   # Should output: https://yourdomain.com (no trailing slash, https not http)
+   ```
+
+2. **Verify Civic Auth Dashboard:**
+   - Go to [Civic Auth Dashboard](https://auth.civic.com)
+   - Check that your callback URL matches: `https://yourdomain.com/api/auth/callback`
+   - Make sure the domain matches exactly (including https)
+
+3. **Common Issues:**
+   - ❌ `BASE_URL=http://yourdomain.com` (should be https)
+   - ❌ `BASE_URL=https://yourdomain.com/` (no trailing slash)
+   - ❌ `BASE_URL` not set (defaults to localhost)
+   - ✅ `BASE_URL=https://yourdomain.com` (correct)
+
+4. **For Vercel:**
+   - Go to Project Settings → Environment Variables
+   - Add `BASE_URL` with your production domain
+   - Redeploy after adding
+
+5. **For other platforms:**
+   - Set `BASE_URL` in your platform's environment variables
+   - Restart/redeploy your application
 
 ## Routes
 
