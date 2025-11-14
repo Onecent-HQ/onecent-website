@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useId, useState } from "react";
+import React, { useState, useEffect, useId } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-interface OnChainFocusChartProps {
+interface InvestmentChartsProps {
   investorId: string;
 }
 
@@ -15,7 +15,7 @@ const SEGMENT_META: Record<SegmentKey, { label: string; color: string }> = {
   angel: { label: "Angel", color: "#B3B3B3" },
 };
 
-export default function OnChainFocusChart({ investorId }: OnChainFocusChartProps) {
+export default function InvestmentCharts({ investorId }: InvestmentChartsProps) {
   const [investments, setInvestments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const chartInstanceId = useId();
@@ -71,9 +71,6 @@ export default function OnChainFocusChart({ investorId }: OnChainFocusChartProps
   }));
 
   const hasAnyValue = baseSegments.some((seg) => seg.value > 0);
-  const displaySegments = hasAnyValue
-    ? baseSegments
-    : baseSegments.map((seg) => ({ ...seg, value: 1 }));
 
   if (!hasAnyValue && !investments.length) {
     return (
@@ -108,7 +105,7 @@ export default function OnChainFocusChart({ investorId }: OnChainFocusChartProps
             {baseSegments.map((segment) => (
               <div className="flex items-center justify-between" key={segment.key}>
                 <span className="text-xs uppercase tracking-[0.16em] text-white/55">
-                {segment.label.toLowerCase()} investments
+                  {segment.label.toLowerCase()} investments
                 </span>
                 <span className="text-sm font-semibold text-white">
                   {segment.value > 0 ? `$${segment.value.toLocaleString()}` : "—"}

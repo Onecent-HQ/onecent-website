@@ -27,13 +27,13 @@ export default function Toast({
   // Dark theme styling to match the app
   const getStyles = () => {
     if (type === "error") {
-      return "bg-red-500/20 border-red-500/30 text-red-400";
+      return "bg-white/10 border-white/30 text-white";
     }
     if (type === "info") {
       return "bg-white/5 border-white/20 text-white/90";
     }
     // success or default
-    return "bg-orange-500/20 border-orange-500/30 text-orange-400";
+    return "bg-white/10 border-white/30 text-white";
   };
 
   return (

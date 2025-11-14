@@ -67,15 +67,15 @@ export default function ProfileCard({
   const getStatusColor = () => {
     switch (status) {
       case "Online":
-        return "bg-green-500";
+        return "bg-white";
       case "Verified":
-        return "bg-green-500";
+        return "bg-white";
       case "Offline":
         return "bg-gray-400";
       case "Unverified":
         return "bg-gray-400";
       default:
-        return verified ? "bg-green-500" : "bg-gray-400";
+        return verified ? "bg-white" : "bg-gray-400";
     }
   };
 
@@ -110,17 +110,17 @@ export default function ProfileCard({
                 />
               ) : (
                 // Regular URL - use Next.js Image
-                <Image
-                  src={avatarUrl}
-                  alt={name}
-                  fill
-                  className="object-cover"
-                  sizes="96px"
-                />
+              <Image
+                src={avatarUrl}
+                alt={name}
+                fill
+                className="object-cover"
+                sizes="96px"
+              />
               )}
             </div>
           ) : (
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-500/20 to-orange-600/40 flex items-center justify-center text-3xl font-bold text-orange-500 ring-4 ring-white/10 shadow-lg">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-white/40 flex items-center justify-center text-3xl font-bold text-white ring-4 ring-white/10 shadow-lg">
               {name && name.length > 0 ? name.charAt(0).toUpperCase() : "?"}
             </div>
           )}
@@ -136,7 +136,7 @@ export default function ProfileCard({
           <div className="flex items-center justify-center gap-2 mb-1">
             <h3 className="text-2xl font-bold text-white">{name || "Unknown"}</h3>
             {verified && (
-              <Verified className="w-5 h-5 text-green-400" />
+              <Verified className="w-5 h-5 text-white" />
             )}
           </div>
           {title && (
@@ -153,9 +153,9 @@ export default function ProfileCard({
               <span
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
                   status === "Verified" || verified
-                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                    ? "bg-white/20 text-white border border-white/30"
                     : status === "Online"
-                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                    ? "bg-white/20 text-white border border-white/30"
                     : "bg-white/10 text-white/60 border border-white/20"
                 }`}
               >
@@ -179,7 +179,7 @@ export default function ProfileCard({
             {niches.slice(0, 4).map((niche, idx) => (
               <span
                 key={idx}
-                className="px-3 py-1 rounded-lg bg-orange-500/20 text-orange-500 text-xs font-medium border border-orange-500/30"
+                className="px-3 py-1 rounded-lg bg-white/10 text-white text-xs font-medium border border-white/30"
               >
                 {niche}
               </span>

@@ -21,7 +21,7 @@ const Slider = forwardRef<HTMLInputElement, SliderProps>(
           <label className={`block text-sm font-medium ${isAccountPage ? 'text-white/90' : 'text-gray-700'}`}>
             {label}
           </label>
-          <span className={`text-sm font-semibold ${isAccountPage ? 'text-orange-500' : 'text-accent'}`}>{displayValue}</span>
+          <span className={`text-sm font-semibold ${isAccountPage ? 'text-white' : 'text-accent'}`}>{displayValue}</span>
         </div>
         <input
           ref={ref}
@@ -31,9 +31,9 @@ const Slider = forwardRef<HTMLInputElement, SliderProps>(
           step={step}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${isAccountPage ? 'bg-white/10 accent-orange-500' : 'bg-gray-200 accent-accent'} ${className}`}
+          className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${isAccountPage ? 'bg-white/10 accent-white' : 'bg-gray-200 accent-accent'} ${className}`}
           style={isAccountPage ? { 
-            background: `linear-gradient(to right, rgb(249 115 22) 0%, rgb(249 115 22) ${((value - min) / (max - min)) * 100}%, rgba(255,255,255,0.1) ${((value - min) / (max - min)) * 100}%, rgba(255,255,255,0.1) 100%)`
+            background: `linear-gradient(to right, rgb(255 255 255) 0%, rgb(255 255 255) ${((value - min) / (max - min)) * 100}%, rgba(255,255,255,0.1) ${((value - min) / (max - min)) * 100}%, rgba(255,255,255,0.1) 100%)`
           } : {}}
           {...props}
         />

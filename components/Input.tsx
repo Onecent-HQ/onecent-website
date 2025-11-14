@@ -4,34 +4,51 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   icon?: ReactNode;
+  variant?: "light" | "dark";
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, className = "", icon, ...props }, ref) => {
-    // Check if we're in account page (dark theme)
-    const isAccountPage = typeof window !== 'undefined' && window.location.pathname === '/account';
+  ({ label, error, className = "", icon, variant, ...props }, ref) => {
+    // Detect dark theme by route, but allow explicit override via variant
+    const isAccountPage = typeof window !== "undefined" && window.location.pathname === "/account";
+    const themeVariant = variant ?? (isAccountPage ? "dark" : "light");
+    const isDark = themeVariant === "dark";
     
     return (
       <div className="w-full">
         {label && (
-          <label className={`block text-sm font-medium mb-2 ${isAccountPage ? 'text-white/90' : 'text-gray-700'}`}>
+          <label
+            className={`block text-sm font-medium mb-2 ${
+              isDark ? "text-white/90" : "text-gray-700"
+            }`}
+          >
             {label}
-            {props.required && <span className={`ml-1 ${isAccountPage ? 'text-orange-500' : 'text-red-500'}`}>*</span>}
+            {props.required && (
+              <span className={`ml-1 ${isDark ? "text-white" : "text-red-500"}`}>*</span>
+            )}
           </label>
         )}
         <div className="relative">
           {icon && (
-            <div className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${isAccountPage ? 'text-white/60' : 'text-gray-400'}`}>
+            <div
+              className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
+                isDark ? "text-white/60" : "text-gray-400"
+              }`}
+            >
               {icon}
             </div>
           )}
           <input
             ref={ref}
-            className={`ss-input ${isAccountPage ? 'ss-input-dark' : ''} ${error ? "border-red-300 focus:ring-red-300" : ""} ${icon ? 'pl-10' : ''} ${className}`}
+            className={`ss-input ${isDark ? "ss-input-dark" : ""} ${
+              error ? "border-red-300 focus:ring-red-300" : ""
+            } ${icon ? "pl-10" : ""} ${className}`}
             {...props}
           />
         </div>
-        {error && <p className={`mt-1 text-sm ${isAccountPage ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
+        {error && (
+          <p className={`mt-1 text-sm ${isDark ? "text-red-400" : "text-red-600"}`}>{error}</p>
+        )}
       </div>
     );
   }

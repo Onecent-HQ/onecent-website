@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 
-if (!process.env.MONGODB_URI) {
-  throw new Error("Please add your MONGODB_URI to .env.local");
-}
+const MONGODB_URI: string | undefined = process.env.MONGODB_URI;
 
-const MONGODB_URI: string = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  console.error("MONGODB_URI is not set in environment variables");
+  // Don't throw immediately - let connectDB handle it gracefully
+}
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -23,6 +24,10 @@ if (!global.mongoose) {
 }
 
 async function connectDB(): Promise<typeof mongoose> {
+  if (!MONGODB_URI) {
+    throw new Error("MONGODB_URI is not set. Please add it to your environment variables.");
+  }
+
   if (cached.conn) {
     return cached.conn;
   }

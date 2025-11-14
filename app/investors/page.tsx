@@ -7,7 +7,6 @@ import ProfileCard from "@/components/ProfileCard";
 import Input from "@/components/Input";
 import { Search, ArrowLeft, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import Button from "@/components/Button";
-import { useUser } from "@civic/auth/react";
 
 interface Investor {
   _id: string;
@@ -31,7 +30,6 @@ interface Pagination {
 function InvestorsListContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useUser();
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [search, setSearch] = useState(searchParams.get("search") || "");
@@ -89,43 +87,32 @@ function InvestorsListContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a]">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <div className="border-b border-white/10 bg-[#1a1a1a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <div className="border-b border-white/10 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between mb-6">
             <Link 
               href="/"
-              className="flex items-center gap-2 text-white/80 hover:text-orange-500 transition-colors"
+              className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back to Home</span>
             </Link>
             
-            {user ? (
               <Link href="/account">
-                <Button className="group bg-orange-500 hover:bg-orange-600/90 px-6 py-3 text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                <Button className="group bg-black hover:bg-gray-900 px-6 py-3 text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-white border border-white/20">
                   <span className="flex items-center gap-2">
                     Manage Your Profile
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </Button>
               </Link>
-            ) : (
-              <Link href="/signin">
-                <Button className="group bg-orange-500 hover:bg-orange-600/90 px-6 py-3 text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                  <span className="flex items-center gap-2">
-                    Create Your Profile
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </Button>
-              </Link>
-            )}
           </div>
           
           <div className="space-y-4">
             <h1 className="text-4xl md:text-5xl font-bold text-white">
-              Investor <span className="text-orange-500">Registry</span>
+              Investor <span className="text-white">Registry</span>
             </h1>
             <p className="text-xl text-white/70 max-w-2xl">
               Discover partners aligned with your investment thesis
@@ -143,7 +130,7 @@ function InvestorsListContent() {
             value={search}
             onChange={handleSearchChange}
             placeholder="Search by name or niche..."
-            className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/20 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
+            className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/20 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white transition-all"
           />
         </div>
       </div>
@@ -152,12 +139,12 @@ function InvestorsListContent() {
       <div className="max-w-7xl mx-auto px-4 pb-20">
         {isLoading ? (
           <div className="text-center py-20">
-            <div className="inline-block w-8 h-8 border-2 border-white/30 border-t-orange-500 rounded-full animate-spin" />
+            <div className="inline-block w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             <p className="mt-4 text-white/60">Loading investors...</p>
           </div>
         ) : error ? (
           <div className="text-center py-20">
-            <p className="text-red-400 mb-4">{error}</p>
+            <p className="text-white mb-4">{error}</p>
             <Button onClick={fetchInvestors} variant="secondary">
               Try Again
             </Button>
@@ -203,7 +190,7 @@ function InvestorsListContent() {
                 <button
                   onClick={() => handlePageChange(page - 1)}
                   disabled={page === 1}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-white/80 hover:text-orange-500 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-orange-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronLeft className="w-5 h-5" />
                   Previous
@@ -231,8 +218,8 @@ function InvestorsListContent() {
                             onClick={() => handlePageChange(p)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                               p === page
-                                ? "bg-orange-500 text-white"
-                                : "text-white/80 hover:text-orange-500 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-orange-500/50"
+                                ? "bg-black text-white border border-white/50"
+                                : "text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/50"
                             }`}
                           >
                             {p}
@@ -245,7 +232,7 @@ function InvestorsListContent() {
                 <button
                   onClick={() => handlePageChange(page + 1)}
                   disabled={page === pagination.totalPages}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-white/80 hover:text-orange-500 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-orange-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Next
                   <ChevronRight className="w-5 h-5" />
@@ -262,9 +249,9 @@ function InvestorsListContent() {
 export default function InvestorsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block w-8 h-8 border-2 border-white/30 border-t-orange-500 rounded-full animate-spin" />
+          <div className="inline-block w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           <p className="mt-4 text-white/60">Loading...</p>
         </div>
       </div>

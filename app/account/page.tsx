@@ -13,6 +13,7 @@ import MultiSelect from "@/components/MultiSelect";
 import FieldGroup from "@/components/FieldGroup";
 import Toast from "@/components/Toast";
 import WalletProvider from "@/components/WalletProvider";
+import AngelInvestmentsSection from "./AngelInvestmentsSection";
 import { useUser } from "@civic/auth/react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
@@ -27,12 +28,14 @@ const InvestmentsSection = memo(function InvestmentsSection({
   onUpdate,
   onRemove,
   onAddVerified,
+  onUpdateTags,
 }: {
   investments: TopInvestment[];
   onAdd: () => void;
   onUpdate: (index: number, field: keyof TopInvestment, value: string) => void;
   onRemove: (index: number) => void;
   onAddVerified: (mints: string[], metadata?: Record<string, { name?: string; symbol?: string; balance?: string; balanceRaw?: string; decimals?: number }>, walletMints?: Set<string>) => void;
+  onUpdateTags: (index: number, tags: string[]) => void;
 }) {
   const wallet = useWallet();
   const { setVisible } = useWalletModal();
@@ -188,7 +191,7 @@ const InvestmentsSection = memo(function InvestmentsSection({
                   type="button"
                   onClick={fetchWalletTokens}
                   disabled={isFetching}
-                  className="px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-black hover:bg-gray-900 border border-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {isFetching ? "Fetching..." : "Fetch Tokens"}
                 </button>
@@ -200,13 +203,22 @@ const InvestmentsSection = memo(function InvestmentsSection({
         {/* Investments Table - Premium Format */}
         {investments.length > 0 && (
           <div className="mb-8">
-            <div className="overflow-hidden rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-              <table className="w-full">
+            <div className="relative overflow-x-auto rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <table className="w-full table-fixed">
+                <colgroup>
+                  <col className="w-[15%]" />
+                  <col className="w-[20%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[28%]" />
+                  <col className="w-[15%]" />
+                  <col className="w-[10%]" />
+                </colgroup>
                 <thead>
                   <tr className="border-b border-white/10">
                     <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Project</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Token Address</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Holdings</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Tags</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-4 text-right text-xs font-semibold text-white/60 uppercase tracking-wider"></th>
                   </tr>
@@ -220,7 +232,7 @@ const InvestmentsSection = memo(function InvestmentsSection({
                           value={investment.projectName}
                           onChange={(e) => onUpdate(index, "projectName", e.target.value)}
                           placeholder="Project name"
-                          className="w-full px-3 py-2 text-sm text-white bg-transparent border border-transparent rounded-md hover:border-orange-500/50 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none transition-all placeholder:text-white/40"
+                          className="w-full px-3 py-2 text-sm text-white bg-transparent border border-transparent rounded-md hover:border-white/50 focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
                           required
                         />
                       </td>
@@ -230,7 +242,7 @@ const InvestmentsSection = memo(function InvestmentsSection({
                           value={investment.tokenCA}
                           onChange={(e) => onUpdate(index, "tokenCA", e.target.value.trim())}
                           placeholder="Token address"
-                          className="w-full px-3 py-2 text-sm font-mono text-white bg-transparent border border-transparent rounded-md hover:border-orange-500/50 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none transition-all placeholder:text-white/40"
+                          className="w-full px-3 py-2 text-sm font-mono text-white bg-transparent border border-transparent rounded-md hover:border-white/50 focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
                           required
                         />
                       </td>
@@ -250,8 +262,30 @@ const InvestmentsSection = memo(function InvestmentsSection({
                             )}
                           </div>
                         ) : (
-                          <span className="text-sm text-white/40">—</span>
+                          <input
+                            type="number"
+                            value={investment.balance || ""}
+                            onChange={(e) => onUpdate(index, "balance", e.target.value)}
+                            placeholder="Enter holdings"
+                            min="0"
+                            step="any"
+                            className="w-full px-3 py-2 text-sm text-white bg-transparent border border-transparent rounded-md hover:border-white/50 focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
+                          />
                         )}
+                      </td>
+                      <td className="px-6 py-5 align-top">
+                        <div className="min-w-[220px] max-w-xs">
+                        <div className="relative">
+                          <MultiSelect
+                            options={NICHE_OPTIONS}
+                            value={investment.tags || []}
+                            onChange={(tags) => onUpdateTags(index, tags)}
+                            allowOther
+                            maxSelections={6}
+                              portal
+                          />
+                          </div>
+                        </div>
                       </td>
                       <td className="px-6 py-5">
                         {investment.verified ? (
@@ -276,7 +310,7 @@ const InvestmentsSection = memo(function InvestmentsSection({
                         <button
                           type="button"
                           onClick={() => onRemove(index)}
-                          className="text-sm text-red-400 hover:text-orange-500 font-medium px-3 py-1.5 rounded-md hover:bg-white/5 transition-colors opacity-0 group-hover:opacity-100"
+                          className="text-sm text-white/60 hover:text-white font-medium px-3 py-1.5 rounded-md hover:bg-white/5 transition-colors opacity-0 group-hover:opacity-100"
                         >
                           Remove
                         </button>
@@ -305,8 +339,12 @@ const InvestmentsSection = memo(function InvestmentsSection({
         <div>
           <button
             type="button"
-            onClick={onAdd}
-            className="px-5 py-2.5 rounded-lg text-sm font-medium text-white/80 hover:text-orange-500 bg-white/5 hover:bg-white/10 border border-white/20 transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAdd();
+            }}
+            className="px-5 py-2.5 rounded-lg text-sm font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20 transition-colors"
           >
             + Add Investment
           </button>
@@ -344,6 +382,7 @@ interface TopInvestment {
   balance?: string; // Token holdings balance (if from wallet)
   balanceRaw?: string; // Raw balance string
   decimals?: number; // Token decimals
+  tags?: string[]; // Tags for the investment
 }
 
 interface InvestorData {
@@ -579,6 +618,51 @@ export default function AccountPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to save profile");
 
+      // Save verified/unverified investments to Investment model
+      const verifiedInvestments = (formData.topInvestments || [])
+        .filter((inv) => inv.verified && inv.tokenCA)
+        .map((inv) => ({
+          mint: inv.tokenCA,
+          name: inv.projectName,
+          symbol: inv.projectName,
+          amountUsd: 0, // Will need to be calculated or entered separately
+          tags: inv.tags || [],
+        }));
+
+      if (verifiedInvestments.length > 0) {
+        try {
+          await fetch("/api/investments/verified", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tokens: verifiedInvestments }),
+          });
+        } catch (error) {
+          console.error("Failed to save verified investments:", error);
+        }
+      }
+
+      // Save unverified investments
+      const unverifiedInvestments = (formData.topInvestments || []).filter(
+        (inv) => !inv.verified && inv.projectName && inv.tokenCA
+      );
+      
+      for (const inv of unverifiedInvestments) {
+        try {
+          await fetch("/api/investments/unverified", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              projectName: inv.projectName,
+              tokenCA: inv.tokenCA,
+              amountUsd: 0, // User will need to enter this separately
+              tags: inv.tags || [],
+            }),
+          });
+        } catch (error) {
+          console.error("Failed to save unverified investment:", error);
+        }
+      }
+
       setToast({ message: "Profile saved successfully", type: "success" });
       
       // Refresh the investors list page if we're navigating away
@@ -653,6 +737,14 @@ export default function AccountPage() {
     setFormData((prev) => {
       const investments = [...(prev.topInvestments || [])];
       investments.splice(index, 1);
+      return { ...prev, topInvestments: investments };
+    });
+  }, []);
+
+  const updateInvestmentTags = useCallback((index: number, tags: string[]) => {
+    setFormData((prev) => {
+      const investments = [...(prev.topInvestments || [])];
+      investments[index] = { ...investments[index], tags };
       return { ...prev, topInvestments: investments };
     });
   }, []);
@@ -837,22 +929,22 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a]">
+    <div className="min-h-screen bg-black">
       {/* Navigation Bar - Top */}
-      <div className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#1a1a1a]/95 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 md:px-6">
+      <div className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/95 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center gap-4">
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-orange-500 transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Home
               </Link>
               <Link
                 href="/investors"
-                className="inline-flex items-center gap-2 text-sm font-medium text-white/60 hover:text-orange-500 transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white transition-colors"
               >
                 Browse Investors
               </Link>
@@ -873,7 +965,7 @@ export default function AccountPage() {
       </div>
 
       {/* Header */}
-      <div className="mx-auto max-w-4xl px-4 md:px-6 pt-24 pb-8">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 pt-24 pb-8">
           <div className="space-y-3">
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-white">
               Your Profile
@@ -885,7 +977,7 @@ export default function AccountPage() {
       </div>
 
       {/* Form */}
-      <div className="mx-auto max-w-4xl px-4 md:px-6 mt-8 pb-32">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 mt-8 pb-32">
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-12">
           {/* Identity */}
           <div className="py-8">
@@ -945,7 +1037,7 @@ export default function AccountPage() {
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-orange-500/50 transition-colors bg-white/5 hover:bg-white/10">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-white/50 transition-colors bg-white/5 hover:bg-white/10">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       <Upload className="w-8 h-8 mb-2 text-white/60" />
                       <p className="mb-2 text-sm text-white/80">
@@ -1018,8 +1110,19 @@ export default function AccountPage() {
               onUpdate={updateInvestment}
               onRemove={removeInvestment}
               onAddVerified={handleAddVerified}
+              onUpdateTags={updateInvestmentTags}
             />
           </WalletProvider>
+
+          {/* Angel Investments */}
+          <div className="py-8 border-t border-white/10">
+            <FieldGroup
+              title="Angel Investments"
+              description="Add your off-chain investments (checks written directly to startups)."
+            >
+              <AngelInvestmentsSection />
+            </FieldGroup>
+          </div>
 
           {/* Preferences */}
           <div className="py-8 border-t border-white/10">
@@ -1114,7 +1217,7 @@ export default function AccountPage() {
                         prefs: { ...formData.prefs, openToColdPitches: e.target.checked },
                       })
                     }
-                    className="w-5 h-5 text-orange-500 border-white/30 rounded focus:ring-2 focus:ring-orange-500/20 focus:ring-offset-0 cursor-pointer bg-transparent"
+                    className="w-5 h-5 text-white border-white/30 rounded focus:ring-2 focus:ring-white/20 focus:ring-offset-0 cursor-pointer bg-transparent"
                   />
                   <label htmlFor="coldPitches" className="text-sm font-medium text-white/90 cursor-pointer">
                     Open to cold pitches
@@ -1127,13 +1230,13 @@ export default function AccountPage() {
       </div>
 
       {/* Fixed Save Button */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#1a1a1a]/95 backdrop-blur-sm shadow-lg">
-        <div className="max-w-4xl mx-auto px-4 md:px-6 py-4">
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/95 backdrop-blur-sm shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center justify-end gap-4">
             <button
               type="button"
               onClick={() => router.push("/investors")}
-              className="px-5 py-2.5 rounded-lg text-sm font-medium text-white/80 hover:text-orange-500 bg-white/5 hover:bg-white/10 border border-white/20 transition-colors"
+              className="px-5 py-2.5 rounded-lg text-sm font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20 transition-colors"
             >
               Cancel
             </button>
@@ -1145,7 +1248,7 @@ export default function AccountPage() {
                 }
               }}
               disabled={isSaving}
-              className="px-6 py-2.5 rounded-lg text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-2.5 rounded-lg text-sm font-medium text-white bg-black hover:bg-gray-900 border border-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isSaving ? (
                 <span className="flex items-center gap-2">

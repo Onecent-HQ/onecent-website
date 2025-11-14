@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, X } from "lucide-react";
 
 interface MultiSelectProps {
@@ -11,6 +12,8 @@ interface MultiSelectProps {
   placeholder?: string;
   allowOther?: boolean;
   maxSelections?: number;
+  dropdownMode?: "overlay" | "inline";
+  portal?: boolean;
 }
 
 export default function MultiSelect({
@@ -21,18 +24,23 @@ export default function MultiSelect({
   placeholder = "Select options...",
   allowOther = false,
   maxSelections = 6,
+  dropdownMode = "overlay",
+  portal = false,
 }: MultiSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [otherValue, setOtherValue] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const isAccountPage = typeof window !== 'undefined' && window.location.pathname === '/account';
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number; width: number } | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(event.target as Node) &&
+        (!menuRef.current || !menuRef.current.contains(event.target as Node))
       ) {
         setIsOpen(false);
       }
@@ -46,6 +54,30 @@ export default function MultiSelect({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
+
+  // Position the dropdown when using a portal so it pops out of overflow containers
+  useEffect(() => {
+    if (!isOpen || !portal || !dropdownRef.current) return;
+
+    const updatePosition = () => {
+      if (!dropdownRef.current) return;
+      const rect = dropdownRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [isOpen, portal]);
 
   const handleToggle = (option: string) => {
     if (value.includes(option)) {
@@ -66,8 +98,75 @@ export default function MultiSelect({
     onChange(value.filter((v) => v !== option));
   };
 
+  const isInline = dropdownMode === "inline" && !portal;
+  const usePortalMenu = portal && typeof document !== "undefined";
+
+  const menu = (
+    <div
+      ref={menuRef}
+      className={`w-full mt-1 rounded-xl shadow-xl border max-h-60 overflow-auto ${
+        isAccountPage ? "bg-black border-white/20" : "bg-white border-gray-200"
+      }`}
+    >
+          {options.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => {
+                handleToggle(option);
+              }}
+              className={`w-full text-left px-4 py-2 transition-colors ${
+                isAccountPage
+                  ? value.includes(option)
+                    ? "bg-white/10 text-white font-medium"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                  : value.includes(option)
+                    ? "bg-accent/10 text-accent font-medium hover:bg-gray-50"
+                    : "hover:bg-gray-50"
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+          {allowOther && (
+            <div className={`border-t p-2 ${isAccountPage ? 'border-white/10' : 'border-gray-200'}`}>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={otherValue}
+                  onChange={(e) => setOtherValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddOther();
+                    }
+                  }}
+                  placeholder="Other..."
+                  className={`flex-1 px-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 ${
+                    isAccountPage
+                      ? 'bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:ring-white/20 focus:border-white'
+                      : 'border-gray-300 focus:ring-accent/30'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddOther}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+                    isAccountPage
+                      ? 'bg-black text-white hover:bg-gray-900 border border-white/20'
+                      : 'bg-accent text-white hover:bg-accent/90'
+                  }`}
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+  );
+
   return (
-    <div className="w-full relative z-50" ref={containerRef}>
+    <div className={`w-full ${isInline || usePortalMenu ? "" : "relative z-50"}`} ref={containerRef}>
       {label && (
         <label className={`block text-sm font-medium mb-2 ${isAccountPage ? 'text-white/90' : 'text-gray-700'}`}>
           {label}
@@ -102,62 +201,25 @@ export default function MultiSelect({
       </div>
 
       {isOpen && (
-        <div className={`absolute z-[9999] w-full mt-1 rounded-xl shadow-xl border max-h-60 overflow-auto ${isAccountPage ? 'bg-[#1a1a1a] border-white/20' : 'bg-white border-gray-200'}`}>
-          {options.map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => {
-                handleToggle(option);
-              }}
-              className={`w-full text-left px-4 py-2 transition-colors ${
-                isAccountPage
-                  ? value.includes(option)
-                    ? "bg-orange-500/20 text-orange-500 font-medium"
-                    : "text-white/80 hover:bg-white/10 hover:text-white"
-                  : value.includes(option)
-                    ? "bg-accent/10 text-accent font-medium hover:bg-gray-50"
-                    : "hover:bg-gray-50"
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-          {allowOther && (
-            <div className={`border-t p-2 ${isAccountPage ? 'border-white/10' : 'border-gray-200'}`}>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={otherValue}
-                  onChange={(e) => setOtherValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddOther();
-                    }
+        <>
+          {usePortalMenu && menuPosition
+            ? createPortal(
+                <div
+                  className="absolute z-[9999]"
+                  style={{
+                    top: menuPosition.top,
+                    left: menuPosition.left,
+                    width: menuPosition.width,
                   }}
-                  placeholder="Other..."
-                  className={`flex-1 px-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 ${
-                    isAccountPage
-                      ? 'bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:ring-orange-500/20 focus:border-orange-500'
-                      : 'border-gray-300 focus:ring-accent/30'
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddOther}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                    isAccountPage
-                      ? 'bg-orange-500 text-white hover:bg-orange-600'
-                      : 'bg-accent text-white hover:bg-accent/90'
-                  }`}
                 >
-                  Add
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+                  {menu}
+                </div>,
+                document.body
+              )
+            : !isInline
+              ? <div className="absolute z-[9999] w-full">{menu}</div>
+              : menu}
+        </>
       )}
       
       {value.length > 0 && (

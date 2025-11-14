@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-[#1a1a1a] text-white antialiased;
+    @apply bg-black text-white antialiased;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
@@ -24,9 +24,9 @@
   }
 
   .ss-button {
-    @apply relative px-6 py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 backdrop-blur-sm border border-orange-500/20 shadow-lg;
+    @apply relative px-6 py-3 rounded-2xl font-semibold text-white bg-black backdrop-blur-sm border border-white/20 shadow-lg;
     @apply transition-all duration-300 ease-out;
-    @apply hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] hover:from-orange-600 hover:to-orange-700;
+    @apply hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] hover:bg-gray-900 hover:border-white/40;
     overflow: hidden;
   }
 
@@ -52,7 +52,7 @@
   }
 
   .ss-button-secondary {
-    @apply bg-white/5 text-white/80 border border-white/20 hover:bg-white/10 hover:text-orange-500 hover:border-orange-500/50 shadow-md hover:shadow-lg;
+    @apply bg-white/5 text-white/80 border border-white/20 hover:bg-white/10 hover:text-white hover:border-white/50 shadow-md hover:shadow-lg;
     @apply font-medium;
   }
 
@@ -67,15 +67,15 @@
 
   .ss-input {
     @apply w-full px-4 py-3 rounded-lg border border-gray-200 bg-white;
-    @apply focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white;
+    @apply focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white focus:bg-white;
     @apply transition-all duration-200 placeholder:text-gray-400 text-sm;
     @apply hover:border-gray-300;
   }
 
   .ss-input-dark {
     @apply border-white/20 bg-white/5 text-white;
-    @apply focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white/5;
-    @apply hover:border-orange-500/50 hover:bg-white/5;
+    @apply focus:ring-white/20 focus:border-white focus:bg-white/5;
+    @apply hover:border-white/50 hover:bg-white/5;
     @apply placeholder:text-white/40;
   }
 
@@ -110,14 +110,14 @@
   }
 
   .ss-chip {
-    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/20 text-orange-500 border border-orange-500/30;
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 text-white border border-white/30;
     @apply text-sm font-medium transition-all duration-200;
-    @apply hover:bg-orange-500/30 hover:border-orange-500/50;
+    @apply hover:bg-white/20 hover:border-white/50;
   }
 
   .ss-chip-dark {
-    @apply bg-orange-500/20 text-orange-500 border-orange-500/30;
-    @apply hover:bg-orange-500/30 hover:border-orange-500/50;
+    @apply bg-white/10 text-white border-white/30;
+    @apply hover:bg-white/20 hover:border-white/50;
   }
 
   .ss-chip-remove {

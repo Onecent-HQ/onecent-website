@@ -66,7 +66,7 @@ export default function SignInPage() {
   // Show loading state only if auth is actively loading (not undefined/null check)
   if (authLoading === true) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-[#1a1a1a]">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-black">
         <div className="animate-pulse text-sm text-white/60">Initializing authentication...</div>
       </div>
     );
@@ -75,27 +75,27 @@ export default function SignInPage() {
   // Guard against signIn not being available
   if (!signIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-[#1a1a1a]">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-black">
         <div className="text-center space-y-4">
-          <p className="text-sm text-red-400 mb-2">Authentication provider not available</p>
+          <p className="text-sm text-white mb-2">Authentication provider not available</p>
           <p className="text-xs text-white/50">Please refresh the page or check your browser console.</p>
-          <Link href="/" className="text-sm text-orange-500 underline block">Go back to home</Link>
+          <Link href="/" className="text-sm text-white underline block">Go back to home</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative bg-[#1a1a1a]">
-      <Link href="/" className="absolute top-4 left-4 inline-flex items-center gap-2 text-white/80 hover:text-orange-500 transition-colors">
+    <div className="min-h-screen flex items-center justify-center p-4 relative bg-black">
+      <Link href="/" className="absolute top-4 left-4 inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors">
         <span className="text-lg">←</span>
         <span className="font-medium">Back</span>
       </Link>
       <GlassCard className="max-w-md w-full">
         <div className="text-center space-y-6">
           <div className="flex justify-center">
-            <div className="p-3 rounded-2xl bg-orange-500/20">
-              <XLogo className="w-8 h-8 text-orange-500" />
+            <div className="p-3 rounded-2xl bg-white/10">
+              <XLogo className="w-8 h-8 text-white" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-white">Sign In</h1>

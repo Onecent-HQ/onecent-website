@@ -62,7 +62,7 @@ export default function HomePage() {
   // ];
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#1a1a1a] flex items-center justify-center">
+    <div className="relative min-h-screen overflow-hidden bg-black flex items-center justify-center">
       {/* Prism Background - Optimized for mobile and desktop */}
       <div className="fixed inset-0 z-0">
         <Prism 
@@ -77,7 +77,7 @@ export default function HomePage() {
       </div>
 
       {/* Dark Overlay for Text Readability */}
-      <div className="fixed inset-0 z-0 bg-[#1a1a1a]/60" />
+      <div className="fixed inset-0 z-0 bg-black/60" />
 
       {/* Enhanced Sign Up Section */}
       <section className="relative px-4 sm:px-6 lg:px-8 z-10 text-center w-full">
@@ -86,7 +86,7 @@ export default function HomePage() {
           <div className="space-y-4 sm:space-y-6">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white leading-[1.1] sm:leading-[1.15]">
               <span className="block animate-fade-in">Are you an investor?</span>
-              <span className="block mt-2 sm:mt-3 md:mt-4 text-orange-500 animate-fade-in-delay">
+              <span className="block mt-2 sm:mt-3 md:mt-4 text-white animate-fade-in-delay">
                 Join the network
               </span>
             </h1>
@@ -101,7 +101,7 @@ export default function HomePage() {
           <div className="pt-2 sm:pt-4 md:pt-6 animate-fade-in-delay-3">
             <Link href="/signin" className="inline-block">
               <Button 
-                className="group relative overflow-hidden bg-orange-500 hover:bg-orange-600/90 px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl font-semibold shadow-lg hover:shadow-2xl hover:shadow-orange-500/50 hover:-translate-y-1 transition-all duration-300 rounded-lg"
+                className="group relative overflow-hidden bg-black hover:bg-gray-900 px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl font-semibold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 rounded-lg border border-white/20"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
                   Sign Up
@@ -116,15 +116,15 @@ export default function HomePage() {
           {/* Trust Indicators - Mobile Optimized */}
           <div className="pt-4 sm:pt-6 md:pt-8 flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8 text-xs sm:text-sm text-white/60 animate-fade-in-delay-4">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-500 flex-shrink-0"></div>
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white flex-shrink-0"></div>
               <span>Verified Profiles</span>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-500 flex-shrink-0"></div>
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white flex-shrink-0"></div>
               <span>On-Chain Verified</span>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-500 flex-shrink-0"></div>
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white flex-shrink-0"></div>
               <span>Curated Network</span>
             </div>
           </div>

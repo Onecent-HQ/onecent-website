@@ -31,7 +31,7 @@ export default function SegmentedControl({
             className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               value === option.value
                 ? isAccountPage
-                  ? "bg-white/20 text-orange-500 shadow-sm"
+                  ? "bg-white/20 text-white shadow-sm"
                   : "bg-white text-accent shadow-sm"
                 : isAccountPage
                   ? "text-white/70 hover:text-white hover:bg-white/10"

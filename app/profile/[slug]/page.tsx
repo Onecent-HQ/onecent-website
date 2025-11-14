@@ -3,13 +3,14 @@ import { Verified, Lock, ExternalLink, ArrowLeft, ArrowRight } from "lucide-reac
 import Link from "next/link";
 import GlassCard from "@/components/GlassCard";
 import Button from "@/components/Button";
-import OnChainFocusChart from "@/components/OnChainFocusChart";
 import XLogo from "@/components/XLogo";
 import connectDB from "@/lib/db";
 import Investor from "@/models/Investor";
 import ProfileNav from "./ProfileNav";
 import ShareProfile from "./ShareProfile";
 import SubscribeButton from "./SubscribeButton";
+import PitchButton from "./PitchButton";
+import OnChainFocusChart from "@/components/OnChainFocusChart";
 
 export default async function ProfilePage({ params }: { params: { slug: string } }) {
   const { slug } = await params;
@@ -18,9 +19,9 @@ export default async function ProfilePage({ params }: { params: { slug: string }
     await connectDB();
 
     const investor = await Investor.findOne({ slug })
-      .select("-__v -_id")
+      .select("-__v")
       .lean();
-    
+
     // Ensure profileImage is included
     const investorWithImage = investor ? {
       ...investor,
@@ -109,7 +110,7 @@ export default async function ProfilePage({ params }: { params: { slug: string }
     ].filter(Boolean) as Array<{ label: string; value: string }>;
 
     return (
-      <div className="relative min-h-screen overflow-hidden bg-[#1a1a1a]">
+      <div className="relative min-h-screen overflow-hidden bg-black">
         {/* Navigation Bar */}
         <ProfileNav />
         
@@ -119,7 +120,7 @@ export default async function ProfilePage({ params }: { params: { slug: string }
               <div className="relative flex flex-col gap-12 p-8 md:p-12">
                 <section className="grid items-center gap-10 md:grid-cols-[auto,1fr]">
                   <div className="relative flex items-center justify-center">
-                    <div className="absolute inset-0 scale-125 rounded-full bg-gradient-to-br from-orange-500/10 via-transparent to-transparent blur-xl" />
+                    <div className="absolute inset-0 scale-125 rounded-full bg-gradient-to-br from-white/10 via-transparent to-transparent blur-xl" />
                     {publicInvestor.profileImage ? (
                       <div className="relative h-28 w-28 md:h-32 md:w-32 rounded-3xl overflow-hidden border border-white/20 shadow-[inset_0_10px_30px_rgba(0,0,0,0.3)]">
                         {publicInvestor.profileImage.startsWith('data:') ? (
@@ -137,9 +138,9 @@ export default async function ProfilePage({ params }: { params: { slug: string }
                         )}
                       </div>
                     ) : (
-                      <div className="relative flex h-28 w-28 items-center justify-center rounded-3xl border border-white/20 bg-gradient-to-br from-white/10 via-white/5 to-orange-500/10 text-4xl font-semibold text-orange-500 shadow-[inset_0_10px_30px_rgba(0,0,0,0.3)] md:h-32 md:w-32 md:text-5xl">
-                        {publicInvestor.name?.charAt(0)?.toUpperCase() || "?"}
-                      </div>
+                      <div className="relative flex h-28 w-28 items-center justify-center rounded-3xl border border-white/20 bg-gradient-to-br from-white/10 via-white/5 to-white/10 text-4xl font-semibold text-white shadow-[inset_0_10px_30px_rgba(0,0,0,0.3)] md:h-32 md:w-32 md:text-5xl">
+                      {publicInvestor.name?.charAt(0)?.toUpperCase() || "?"}
+                    </div>
                     )}
                   </div>
                   <div className="space-y-6">
@@ -164,7 +165,7 @@ export default async function ProfilePage({ params }: { params: { slug: string }
                           href={`https://x.com/${publicInvestor.xHandle}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-[15px] font-medium text-orange-500 transition hover:text-orange-400"
+                          className="inline-flex items-center gap-2 text-[15px] font-medium text-white transition hover:text-white/80"
                         >
                           <XLogo className="h-4 w-4" />@{publicInvestor.xHandle}
                           <ExternalLink className="h-3.5 w-3.5" />
@@ -191,6 +192,11 @@ export default async function ProfilePage({ params }: { params: { slug: string }
                     ) : null}
                   </div>
                 </section>
+
+                {/* Investment Distribution - Full Width */}
+                {publicInvestor._id && (
+                  <OnChainFocusChart investorId={publicInvestor._id.toString()} />
+                )}
 
                 <div className="grid gap-8 lg:grid-cols-12">
                   <div className="space-y-8 lg:col-span-7">
@@ -219,7 +225,7 @@ export default async function ProfilePage({ params }: { params: { slug: string }
                           {publicInvestor.niches.map((n: string, i: number) => (
                             <span
                               key={`${n}-${i}`}
-                              className="inline-flex items-center rounded-full border border-orange-500/30 bg-orange-500/20 px-4 py-1.5 text-[13.5px] font-medium text-orange-500 backdrop-blur"
+                              className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[13.5px] font-medium text-white backdrop-blur"
                             >
                               {n}
                             </span>
@@ -248,15 +254,15 @@ export default async function ProfilePage({ params }: { params: { slug: string }
                               target="_blank"
                               rel="noopener noreferrer"
                               title={inv.tokenCA}
-                              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-4 shadow-[0_16px_32px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-1 hover:border-orange-500/30 hover:bg-white/10 hover:shadow-[0_20px_50px_rgba(249,115,22,0.15)]"
+                              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-4 shadow-[0_16px_32px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-1 hover:border-white/30 hover:bg-white/10 hover:shadow-[0_20px_50px_rgba(255,255,255,0.15)]"
                             >
-                              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
+                              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
                               <div className="relative flex items-start justify-between">
                                 <div>
                                   <p className="text-[15px] font-semibold text-white">{inv.projectName}</p>
                                   <p className="mt-1 text-[12px] uppercase tracking-[0.18em] text-white/50">Solscan</p>
                                 </div>
-                                <ExternalLink className="h-4 w-4 text-white/40 transition group-hover:text-orange-500" />
+                                <ExternalLink className="h-4 w-4 text-white/40 transition group-hover:text-white" />
                               </div>
                             </a>
                           ))}
@@ -268,25 +274,6 @@ export default async function ProfilePage({ params }: { params: { slug: string }
                   </div>
 
                   <div className="space-y-8 lg:col-span-5">
-                    {"onChainFocusPct" in (publicInvestor.prefs || {}) ? (
-                      <section className="rounded-3xl border border-white/10 bg-white/5 p-7 shadow-[0_18px_45px_rgba(0,0,0,0.2)] backdrop-blur">
-                        <h2 className="text-[18px] font-semibold text-white mb-6">Portfolio Mix</h2>
-                        <div className="flex flex-col items-center gap-6">
-                          <div className="relative w-[200px] h-[200px] mx-auto flex-shrink-0">
-                            <OnChainFocusChart onChainFocusPct={publicInvestor.prefs.onChainFocusPct} variant="premium" />
-                          </div>
-                          <div className="space-y-2 text-center w-full">
-                            <p className="text-[32px] font-semibold text-white">
-                              {publicInvestor.prefs.onChainFocusPct}% On-chain
-                            </p>
-                            <p className="text-[14px] text-white/60 leading-relaxed">
-                              Weighted focus split across recent allocations.
-                            </p>
-                          </div>
-                        </div>
-                      </section>
-                    ) : null}
-
                     {quickPreferences.length ? (
                       <section className="rounded-3xl border border-white/10 bg-white/5 p-7 shadow-[0_18px_45px_rgba(0,0,0,0.2)] backdrop-blur">
                         <h2 className="text-[18px] font-semibold text-white">Quick Preferences</h2>
@@ -305,18 +292,27 @@ export default async function ProfilePage({ params }: { params: { slug: string }
 
                     <section className="rounded-3xl border border-white/10 bg-white/5 p-7 shadow-[0_18px_45px_rgba(0,0,0,0.2)] backdrop-blur">
                       <h2 className="text-[18px] font-semibold text-white">Contact</h2>
+                      {publicInvestor.prefs?.openToColdPitches && (
+                        <div className="mt-4">
+                          <PitchButton
+                            investorId={publicInvestor._id?.toString() || ""}
+                            investorName={publicInvestor.name}
+                            openToPitches={publicInvestor.prefs.openToColdPitches}
+                          />
+                        </div>
+                      )}
                       {publicInvestor.telegram ? (
                         <a
                           href={`https://t.me/${publicInvestor.telegram}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-4 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/20 px-5 py-2.5 text-[15px] font-medium text-orange-500 transition hover:border-orange-500/50 hover:bg-orange-500/30"
+                          className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-2.5 text-[15px] font-medium text-white transition hover:border-white/50 hover:bg-white/20"
                         >
                           Telegram @{publicInvestor.telegram}
                           <ExternalLink className="h-4 w-4" />
                         </a>
                       ) : (
-                        <div className="mt-4 space-y-4 rounded-2xl border border-orange-500/20 bg-orange-500/10 p-5">
+                        <div className="mt-4 space-y-4 rounded-2xl border border-white/20 bg-white/10 p-5">
                           <div className="flex items-center gap-2 text-white/80">
                             <Lock className="h-4 w-4" />
                             <span className="text-[15px] font-medium">Exclusive channel</span>
@@ -334,7 +330,7 @@ export default async function ProfilePage({ params }: { params: { slug: string }
                 <ShareProfile slug={slug} />
                 
                 <div className="border-t border-white/10 pt-6 text-[14px] text-white/60">
-                  <Link href="/investors" className="inline-flex items-center gap-2 font-medium text-white/80 transition hover:text-orange-500">
+                  <Link href="/investors" className="inline-flex items-center gap-2 font-medium text-white/80 transition hover:text-white">
                     ← Back to Investors
                   </Link>
                 </div>
