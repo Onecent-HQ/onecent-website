@@ -318,7 +318,7 @@ export default async function ProfilePage({ params }: { params: { slug: string }
                             <span className="text-[15px] font-medium">Exclusive channel</span>
                           </div>
                           <p className="text-[14px] text-white/70">
-                            Unlock their direct line with a Supershares subscription.
+                            Unlock their direct line with a Supershares.io subscription.
                           </p>
                           <SubscribeButton />
                         </div>
