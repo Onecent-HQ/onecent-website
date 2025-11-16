@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import ProfileCard from "@/components/ProfileCard";
 import Input from "@/components/Input";
-import { Search, ArrowLeft, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { Search, ArrowLeft, ChevronLeft, ChevronRight, ArrowRight, Sparkles, X } from "lucide-react";
 import Button from "@/components/Button";
+import Logo from "@/components/Logo";
+import { useUser } from "@civic/auth/react";
 
 interface Investor {
   _id: string;
@@ -30,12 +32,15 @@ interface Pagination {
 function InvestorsListContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useUser();
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [page, setPage] = useState(parseInt(searchParams.get("page") || "1", 10));
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   const fetchInvestors = useCallback(async () => {
     setIsLoading(true);
@@ -68,6 +73,80 @@ function InvestorsListContent() {
     fetchInvestors();
   }, [fetchInvestors]);
 
+  // Check if user is new and show welcome banner
+  useEffect(() => {
+    const checkNewUser = async () => {
+      if (!user) {
+        setShowWelcomeBanner(false);
+        setIsNewUser(false);
+        return;
+      }
+
+      // Check if user has dismissed the banner
+      const dismissedKey = `welcome-banner-dismissed-${user.id || 'default'}`;
+      const dismissed = typeof window !== 'undefined' && localStorage.getItem(dismissedKey) === 'true';
+      
+      if (dismissed) {
+        setShowWelcomeBanner(false);
+        return;
+      }
+
+      // Fetch user profile to check if they're new
+      try {
+        const response = await fetch("/api/me", { cache: "no-store" });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.investor) {
+            const investor = data.investor;
+            
+            // Check if profile was just created (createdAt === updatedAt or within 5 seconds)
+            let isNewUser = false;
+            if (investor.createdAt && investor.updatedAt) {
+              const createdAt = new Date(investor.createdAt).getTime();
+              const updatedAt = new Date(investor.updatedAt).getTime();
+              const timeDiff = Math.abs(updatedAt - createdAt);
+              if (timeDiff < 5000) {
+                isNewUser = true;
+              }
+            }
+            
+            // Check if profile has minimal/default data
+            if (!isNewUser) {
+              const hasMinimalData = 
+                !investor.bio && 
+                !investor.headline && 
+                (!investor.topInvestments || investor.topInvestments.length === 0) &&
+                (!investor.niches || investor.niches.length === 0) &&
+                !investor.profileImage;
+              isNewUser = hasMinimalData;
+            }
+            
+            setIsNewUser(isNewUser);
+            setShowWelcomeBanner(isNewUser);
+          } else {
+            // No profile exists - definitely a new user
+            setIsNewUser(true);
+            setShowWelcomeBanner(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking user profile:", error);
+        setShowWelcomeBanner(false);
+        setIsNewUser(false);
+      }
+    };
+
+    checkNewUser();
+  }, [user]);
+
+  const handleDismissWelcomeBanner = () => {
+    const dismissedKey = `welcome-banner-dismissed-${user?.id || 'default'}`;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(dismissedKey, 'true');
+    }
+    setShowWelcomeBanner(false);
+  };
+
   // Update URL when search or page changes
   useEffect(() => {
     const params = new URLSearchParams();
@@ -88,36 +167,83 @@ function InvestorsListContent() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header */}
-      <div className="border-b border-white/10 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <Link 
-              href="/"
-              className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+      {/* Welcome Banner for New Users */}
+      {showWelcomeBanner && (
+        <div className="max-w-7xl mx-auto px-4 md:px-6 pt-6 pb-4">
+          <div className="relative p-5 rounded-xl bg-white/5 border border-white/20 backdrop-blur-sm">
+            <button
+              onClick={handleDismissWelcomeBanner}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label="Dismiss banner"
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span>Back to Home</span>
-            </Link>
-            
-              <Link href="/account">
-                <Button className="group bg-black hover:bg-gray-900 px-6 py-3 text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-white border border-white/20">
-                  <span className="flex items-center gap-2">
-                    Manage Your Profile
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </Button>
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-start gap-3 pr-10">
+              <Sparkles className="w-5 h-5 text-white/80 mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="text-base font-semibold text-white mb-1">
+                  Hey! We see you&apos;re new here
+                </h3>
+                <p className="text-sm text-white/80 leading-relaxed">
+                  Let&apos;s create your profile! Click &quot;Create Your Profile&quot; to get started and showcase your investment focus.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation Bar */}
+      <nav className="relative border-b border-white/10 bg-black/95 backdrop-blur-md sticky top-0 z-50">
+        {/* Subtle gradient overlay for premium feel */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-transparent pointer-events-none" />
+        
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex items-center justify-between h-16">
+            {/* Left Section */}
+            <div className="flex items-center gap-6">
+              <Logo logoHeight={36} />
+              <div className="h-6 w-px bg-white/10" />
+              <Link 
+                href="/"
+                className="group flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white transition-all duration-200"
+              >
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back to Home</span>
               </Link>
+            </div>
+            
+            {/* Right Section */}
+            <div className="flex items-center">
+              {user ? (
+                <Link href="/account">
+                  <button className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 transition-all duration-200 shadow-sm hover:shadow-md backdrop-blur-sm">
+                    <span>{isNewUser ? "Create Your Profile" : "Manage Your Profile"}</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                </Link>
+              ) : (
+                <Link href="/signin">
+                  <button className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 transition-all duration-200 shadow-sm hover:shadow-md backdrop-blur-sm">
+                    <span>Create Your Profile</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                </Link>
+              )}
+            </div>
           </div>
-          
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold text-white">
-              Investor <span className="text-white">Registry</span>
-            </h1>
-            <p className="text-xl text-white/70 max-w-2xl">
-              Discover partners aligned with your investment thesis
-            </p>
-          </div>
+        </div>
+      </nav>
+
+      {/* Header Section */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+        <div className="space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white">
+            Investor <span className="text-white">Leaderboard</span>
+          </h1>
+          <p className="text-xl text-white/70 max-w-2xl">
+            Discover partners aligned with your investment thesis
+          </p>
         </div>
       </div>
 

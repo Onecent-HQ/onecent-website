@@ -19,6 +19,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { CheckCircle2, LogOut, ArrowLeft, XCircle, AlertCircle, Upload, X } from "lucide-react";
 import XLogo from "@/components/XLogo";
+import Logo from "@/components/Logo";
 import { isAuthInProgress, setAuthInProgress, clearAuthLock } from "@/lib/authLock";
 
 // Investments Section Component with Wallet Integration
@@ -294,9 +295,8 @@ const InvestmentsSection = memo(function InvestmentsSection({
                             Verified
                           </span>
                         ) : investment.notInWallet && wallet.connected ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30">
-                            <XCircle className="w-3.5 h-3.5" />
-                            Not in wallet
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 text-white/70 border border-white/20">
+                            Unverified
                           </span>
                         ) : investment.tokenCA ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 text-white/70 border border-white/20">
@@ -323,11 +323,11 @@ const InvestmentsSection = memo(function InvestmentsSection({
             
             {/* Warning for unverified tokens */}
             {investments.some(inv => inv.notInWallet && wallet.connected) && (
-              <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
+              <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/20">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-red-400 leading-relaxed">
-                    Some tokens aren&apos;t found in your connected wallet. Please verify the contract addresses.
+                  <AlertCircle className="w-5 h-5 text-white/60 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-white/80 leading-relaxed">
+                    We notice a few tokens aren&apos;t found in your connected wallet. These will be considered as unverified investments.
                   </p>
                 </div>
               </div>
@@ -385,6 +385,14 @@ interface TopInvestment {
   tags?: string[]; // Tags for the investment
 }
 
+interface AngelInvestment {
+  companyName: string;
+  amountUsd: number;
+  notes?: string;
+  tags: string[];
+  stage: string;
+}
+
 interface InvestorData {
   name: string;
   headline?: string;
@@ -394,6 +402,7 @@ interface InvestorData {
   telegram?: string;
   niches?: string[];
   topInvestments?: TopInvestment[];
+  angelInvestments?: AngelInvestment[];
   prefs: {
     avgTicketSizeUsd?: number;
     stageFocus?: "preseed" | "seed" | "seriesA" | "later";
@@ -508,6 +517,7 @@ export default function AccountPage() {
     telegram: "",
     niches: [],
     topInvestments: [],
+    angelInvestments: [],
     prefs: {
       avgTicketSizeUsd: 50000,
       stageFocus: "seed",
@@ -564,24 +574,47 @@ export default function AccountPage() {
 
       const data = await response.json();
       if (data.investor) {
+        const investor = data.investor;
+        
         setFormData({
-          name: data.investor.name || "",
-          headline: data.investor.headline || "",
-          bio: data.investor.bio || "",
-          profileImage: data.investor.profileImage || "",
-          xHandle: data.investor.xHandle || "",
-          telegram: data.investor.telegram || "",
-          niches: data.investor.niches || [],
-          topInvestments: data.investor.topInvestments || [],
+          name: investor.name || "",
+          headline: investor.headline || "",
+          bio: investor.bio || "",
+          profileImage: investor.profileImage || "",
+          xHandle: investor.xHandle || "",
+          telegram: investor.telegram || "",
+          niches: investor.niches || [],
+          topInvestments: investor.topInvestments || [],
+          angelInvestments: [], // Will be loaded separately
           prefs: {
-            avgTicketSizeUsd: data.investor.prefs?.avgTicketSizeUsd || 50000,
-            stageFocus: data.investor.prefs?.stageFocus || "seed",
-            onChainFocusPct: data.investor.prefs?.onChainFocusPct || 50,
-            activityLevel: data.investor.prefs?.activityLevel || "medium",
-            checksPerYear: data.investor.prefs?.checksPerYear || 10,
-            openToColdPitches: data.investor.prefs?.openToColdPitches || false,
+            avgTicketSizeUsd: investor.prefs?.avgTicketSizeUsd || 50000,
+            stageFocus: investor.prefs?.stageFocus || "seed",
+            onChainFocusPct: investor.prefs?.onChainFocusPct || 50,
+            activityLevel: investor.prefs?.activityLevel || "medium",
+            checksPerYear: investor.prefs?.checksPerYear || 10,
+            openToColdPitches: investor.prefs?.openToColdPitches || false,
           },
         });
+        
+        // Fetch angel investments separately
+        try {
+          const investmentsResponse = await fetch("/api/investments");
+          if (investmentsResponse.ok) {
+            const investmentsData = await investmentsResponse.json();
+            const angelInvestments = (investmentsData.investments || [])
+              .filter((inv: any) => inv.type === "angel")
+              .map((inv: any) => ({
+                companyName: inv.companyName || "",
+                amountUsd: inv.amountUsd || 0,
+                notes: inv.notes || "",
+                tags: inv.tags || [],
+                stage: inv.stage || "seed",
+              }));
+            setFormData((prev) => ({ ...prev, angelInvestments }));
+          }
+        } catch (error) {
+          console.error("Failed to fetch angel investments:", error);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch profile:", error);
@@ -590,6 +623,7 @@ export default function AccountPage() {
       setIsLoading(false);
     }
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -660,6 +694,48 @@ export default function AccountPage() {
           });
         } catch (error) {
           console.error("Failed to save unverified investment:", error);
+        }
+      }
+
+      // Save angel investments
+      if (formData.angelInvestments && formData.angelInvestments.length > 0) {
+        // First, delete all existing angel investments for this investor
+        try {
+          const existingResponse = await fetch("/api/investments");
+          if (existingResponse.ok) {
+            const existingData = await existingResponse.json();
+            const existingAngel = (existingData.investments || []).filter(
+              (inv: any) => inv.type === "angel"
+            );
+            for (const inv of existingAngel) {
+              if (inv._id) {
+                await fetch(`/api/investments/${inv._id}`, { method: "DELETE" });
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to delete existing angel investments:", error);
+        }
+
+        // Then save new ones
+        for (const inv of formData.angelInvestments) {
+          if (inv.companyName && inv.amountUsd) {
+            try {
+              await fetch("/api/investments/angel", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  companyName: inv.companyName,
+                  amountUsd: inv.amountUsd,
+                  notes: inv.notes,
+                  tags: inv.tags,
+                  stage: inv.stage,
+                }),
+              });
+            } catch (error) {
+              console.error("Failed to save angel investment:", error);
+            }
+          }
         }
       }
 
@@ -931,41 +1007,50 @@ export default function AccountPage() {
   return (
     <div className="min-h-screen bg-black">
       {/* Navigation Bar - Top */}
-      <div className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/95 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="flex items-center justify-between h-14">
-            <div className="flex items-center gap-4">
+      <nav className="relative fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/95 backdrop-blur-md">
+        {/* Subtle gradient overlay for premium feel */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-transparent pointer-events-none" />
+        
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex items-center justify-between h-16">
+            {/* Left Section */}
+            <div className="flex items-center gap-6">
+              <Logo logoHeight={36} />
+              <div className="h-6 w-px bg-white/10" />
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
+                className="group flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white transition-all duration-200"
               >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Home
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back to Home</span>
               </Link>
+              <div className="h-6 w-px bg-white/10" />
               <Link
                 href="/investors"
-                className="inline-flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white transition-colors"
+                className="text-sm font-medium text-white/60 hover:text-white transition-colors"
               >
                 Browse Investors
               </Link>
             </div>
+            
+            {/* Right Section */}
             <div className="flex items-center gap-3">
               {user && (
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white/80 hover:text-orange-500 bg-white/5 hover:bg-white/10 border border-white/20 transition-colors"
+                  className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 transition-all duration-200 shadow-sm hover:shadow-md backdrop-blur-sm"
                 >
-                  <LogOut className="w-4 h-4" />
-                  Logout
+                  <LogOut className="w-4 h-4 transition-transform group-hover:rotate-12" />
+                  <span>Logout</span>
                 </button>
               )}
             </div>
           </div>
         </div>
-      </div>
+      </nav>
 
       {/* Header */}
-      <div className="mx-auto max-w-7xl px-4 md:px-6 pt-24 pb-8">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 pt-28 pb-8">
           <div className="space-y-3">
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-white">
               Your Profile
@@ -1120,7 +1205,10 @@ export default function AccountPage() {
               title="Angel Investments"
               description="Add your off-chain investments (checks written directly to startups)."
             >
-              <AngelInvestmentsSection />
+              <AngelInvestmentsSection
+                angelInvestments={formData.angelInvestments || []}
+                onChange={(investments) => setFormData({ ...formData, angelInvestments: investments })}
+              />
             </FieldGroup>
           </div>
 

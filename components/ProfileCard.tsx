@@ -6,7 +6,6 @@ import { useState } from "react";
 import GlassCard from "./GlassCard";
 import Button from "./Button";
 import XLogo from "./XLogo";
-import { Verified } from "lucide-react";
 
 interface ProfileCardProps {
   name: string;
@@ -64,26 +63,6 @@ export default function ProfileCard({
     setTilt({ x: 0, y: 0 });
   };
 
-  const getStatusColor = () => {
-    switch (status) {
-      case "Online":
-        return "bg-white";
-      case "Verified":
-        return "bg-white";
-      case "Offline":
-        return "bg-gray-400";
-      case "Unverified":
-        return "bg-gray-400";
-      default:
-        return verified ? "bg-white" : "bg-gray-400";
-    }
-  };
-
-  const getStatusLabel = () => {
-    if (status) return status;
-    return verified ? "Verified" : "Unverified";
-  };
-
   return (
     <div
       onMouseMove={handleMouseMove}
@@ -124,21 +103,11 @@ export default function ProfileCard({
               {name && name.length > 0 ? name.charAt(0).toUpperCase() : "?"}
             </div>
           )}
-          {status && (
-            <div
-              className={`absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 border-white ${getStatusColor()}`}
-            />
-          )}
         </div>
 
         {/* Name and Title */}
         <div className="mb-4">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <h3 className="text-2xl font-bold text-white">{name || "Unknown"}</h3>
-            {verified && (
-              <Verified className="w-5 h-5 text-white" />
-            )}
-          </div>
+          <h3 className="text-2xl font-bold text-white mb-1">{name || "Unknown"}</h3>
           {title && (
             <p className="text-lg text-white/70 font-medium">{title}</p>
           )}
@@ -146,24 +115,6 @@ export default function ProfileCard({
             <div className="flex items-center justify-center gap-1 mt-2 text-white/60">
               <XLogo className="w-4 h-4" />
               <span className="text-sm">@{handle}</span>
-            </div>
-          )}
-          {showUserInfo && status && (
-            <div className="mt-2">
-              <span
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-                  status === "Verified" || verified
-                    ? "bg-white/20 text-white border border-white/30"
-                    : status === "Online"
-                    ? "bg-white/20 text-white border border-white/30"
-                    : "bg-white/10 text-white/60 border border-white/20"
-                }`}
-              >
-                <div
-                  className={`w-2 h-2 rounded-full ${getStatusColor()}`}
-                />
-                {getStatusLabel()}
-              </span>
             </div>
           )}
         </div>

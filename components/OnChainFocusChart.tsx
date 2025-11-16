@@ -9,10 +9,22 @@ interface OnChainFocusChartProps {
 
 type SegmentKey = "verified" | "unverified" | "angel";
 
-const SEGMENT_META: Record<SegmentKey, { label: string; color: string }> = {
-  verified: { label: "Verified", color: "#FFFFFF" },
-  unverified: { label: "Unverified", color: "#E5E5E5" },
-  angel: { label: "Angel", color: "#B3B3B3" },
+const SEGMENT_META: Record<SegmentKey, { label: string; color: string; gradientColors: string[] }> = {
+  verified: { 
+    label: "Verified", 
+    color: "#FFFFFF", 
+    gradientColors: ["#FFFFFF", "#E5E5E5", "#CCCCCC"] 
+  },
+  unverified: { 
+    label: "Unverified", 
+    color: "#B3B3B3", 
+    gradientColors: ["#E5E5E5", "#B3B3B3", "#999999"] 
+  },
+  angel: { 
+    label: "Angel", 
+    color: "#808080", 
+    gradientColors: ["#B3B3B3", "#808080", "#666666"] 
+  },
 };
 
 export default function OnChainFocusChart({ investorId }: OnChainFocusChartProps) {
@@ -47,49 +59,88 @@ export default function OnChainFocusChart({ investorId }: OnChainFocusChartProps
     );
   }
 
+  // Group investments by type and calculate counts
   const groupedInvestments = {
     verified: investments.filter((inv) => inv.type === "verified"),
     unverified: investments.filter((inv) => inv.type === "unverified"),
     angel: investments.filter((inv) => inv.type === "angel"),
   };
 
-  const totals = {
+  // Calculate counts (not USD)
+  const counts = {
+    verified: groupedInvestments.verified.length,
+    unverified: groupedInvestments.unverified.length,
+    angel: groupedInvestments.angel.length,
+  };
+
+  // Calculate USD totals (only where available - mainly for angel investments)
+  const usdTotals = {
     verified: groupedInvestments.verified.reduce((sum, inv) => sum + (inv.amountUsd || 0), 0),
     unverified: groupedInvestments.unverified.reduce((sum, inv) => sum + (inv.amountUsd || 0), 0),
     angel: groupedInvestments.angel.reduce((sum, inv) => sum + (inv.amountUsd || 0), 0),
   };
 
-  const totalOverall = totals.verified + totals.unverified + totals.angel;
+  const totalCount = counts.verified + counts.unverified + counts.angel;
+  const totalUsd = usdTotals.verified + usdTotals.unverified + usdTotals.angel;
 
-  const baseSegments = (Object.keys(SEGMENT_META) as SegmentKey[]).map((key) => ({
-    key,
-    label: SEGMENT_META[key].label,
-    color: SEGMENT_META[key].color,
-    value: totals[key],
-    gradientId: `${chartInstanceId}-${key}-gradient`,
-    glowId: `${chartInstanceId}-${key}-glow`,
-  }));
+  // Prepare chart data - using counts for segment sizes
+  const chartData = (Object.keys(SEGMENT_META) as SegmentKey[])
+    .map((key) => ({
+      name: SEGMENT_META[key].label,
+      value: counts[key],
+      count: counts[key],
+      usd: usdTotals[key],
+      color: SEGMENT_META[key].color,
+      gradientColors: SEGMENT_META[key].gradientColors,
+      gradientId: `${chartInstanceId}-${key}-gradient`,
+    }))
+    .filter((segment) => segment.value > 0); // Only show segments with investments
 
-  const hasAnyValue = baseSegments.some((seg) => seg.value > 0);
-  const displaySegments = hasAnyValue
-    ? baseSegments
-    : baseSegments.map((seg) => ({ ...seg, value: 1 }));
-
-  if (!hasAnyValue && !investments.length) {
+  // Handle empty state
+  if (totalCount === 0) {
     return (
       <section className="rounded-3xl border border-white/10 bg-white/5 p-7 shadow-[0_18px_45px_rgba(0,0,0,0.2)] backdrop-blur">
         <div className="text-white/60 text-sm text-center py-8">
-          No verified, unverified, or angel investments captured yet.
+          No investments captured yet.
         </div>
       </section>
     );
   }
 
+  // No labels on chart - we'll use legend instead for premium look
+
+  // Custom tooltip with premium styling
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      const percentage = totalCount > 0 ? ((data.count / totalCount) * 100).toFixed(0) : 0;
+      return (
+        <div className="bg-black/98 border border-white/20 rounded-xl p-4 shadow-2xl backdrop-blur-sm">
+          <p className="text-white font-semibold text-sm mb-2">{data.name}</p>
+          <div className="space-y-1">
+            <p className="text-white/90 text-sm">
+              {data.count} {data.count === 1 ? "investment" : "investments"}
+            </p>
+            <p className="text-white/60 text-xs">
+              {percentage}% of portfolio
+            </p>
+            {data.usd > 0 && (
+              <p className="text-white/80 text-sm mt-2 pt-2 border-t border-white/10">
+                ${data.usd.toLocaleString()} in {data.name.toLowerCase()} investments
+              </p>
+            )}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/5 p-7 shadow-[0_18px_45px_rgba(0,0,0,0.2)] backdrop-blur">
-      <div className="flex flex-col lg:flex-row gap-8 items-stretch">
-        {/* Summary */}
-        <div className="lg:w-5/12 space-y-4">
+      <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-stretch">
+        {/* Summary Section */}
+        <div className="lg:w-5/12 space-y-6">
           <div>
             <p className="text-[11px] tracking-[0.16em] uppercase text-white/60">
               Overview
@@ -97,138 +148,158 @@ export default function OnChainFocusChart({ investorId }: OnChainFocusChartProps
             <h2 className="mt-1 text-[20px] font-semibold text-white">
               Investment Distribution
             </h2>
-            {totalOverall > 0 && (
-              <p className="mt-2 text-sm text-white/65">
-                Showing the mix of verified, unverified, and angel positions captured on Supershares.
-              </p>
-            )}
+            <p className="mt-2 text-sm text-white/65">
+              Distribution of your investments by type (verified on-chain, unverified, and angel investments).
+            </p>
           </div>
 
-          <div className="mt-4 space-y-3">
-            {baseSegments.map((segment) => (
-              <div className="flex items-center justify-between" key={segment.key}>
-                <span className="text-xs uppercase tracking-[0.16em] text-white/55">
-                {segment.label.toLowerCase()} investments
-                </span>
-                <span className="text-sm font-semibold text-white">
-                  {segment.value > 0 ? `$${segment.value.toLocaleString()}` : "—"}
-                </span>
-              </div>
-            ))}
+          {/* Investment Counts */}
+          <div className="space-y-4">
+            {chartData.map((segment) => {
+              const percentage = totalCount > 0 ? ((segment.count / totalCount) * 100).toFixed(0) : 0;
+              return (
+                <div className="flex items-center justify-between py-2" key={segment.name}>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-3 h-3 rounded-full ring-2 ring-white/20"
+                      style={{ backgroundColor: segment.color }}
+                    />
+                    <span className="text-xs uppercase tracking-[0.16em] text-white/60 font-medium">
+                      {segment.name.toLowerCase()}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-semibold text-white block">
+                      {segment.count} {segment.count === 1 ? "position" : "positions"}
+                    </span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-white/50">
+                        {percentage}%
+                      </span>
+                      {segment.usd > 0 && (
+                        <>
+                          <span className="text-xs text-white/40">•</span>
+                          <span className="text-xs text-white/60">
+                            ${segment.usd.toLocaleString()}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
 
-            {totalOverall > 0 && (
-              <div className="pt-2 border-t border-white/10 mt-2 flex items-center justify-between">
-                <span className="text-xs uppercase tracking-[0.16em] text-white/60">
-                  Total captured
+            {/* Total */}
+            <div className="pt-4 border-t border-white/10 mt-4 flex items-center justify-between">
+              <span className="text-xs uppercase tracking-[0.16em] text-white/70 font-semibold">
+                Total Portfolio
+              </span>
+              <div className="text-right">
+                <span className="text-sm font-semibold text-white block">
+                  {totalCount} {totalCount === 1 ? "investment" : "investments"}
                 </span>
-                <span className="text-sm font-semibold text-white">
-                  ${totalOverall.toLocaleString()}
-                </span>
+                {totalUsd > 0 && (
+                  <span className="text-xs text-white/60 mt-0.5 block">
+                    ${totalUsd.toLocaleString()} in angel investments
+                  </span>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
 
-        {/* Three compact glowing charts */}
-        <div className="lg:w-7/12 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {baseSegments.map((segment) => {
-            const segmentInvestments = groupedInvestments[segment.key];
-            const chartData = segmentInvestments.map((inv) => ({
-              name: segment.key === "angel" 
-                ? (inv.companyName || "Unknown")
-                : (inv.projectName || inv.tokenSymbol || "Unknown"),
-              value: inv.amountUsd || 0,
-            }));
-
-            const hasNonZero = chartData.some((d) => d.value > 0);
-            const displayData = hasNonZero ? chartData : chartData.map((d) => ({ ...d, value: 1 }));
-
-            return (
-              <div key={segment.key} className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-white">{segment.label}</h3>
-                  <span className="text-xs text-white/60">
-                    {hasNonZero
-                      ? `$${segment.value.toLocaleString()}`
-                      : `${chartData.length} investment${chartData.length === 1 ? "" : "s"}`}
-                  </span>
+        {/* Single Unified Chart - Premium Design */}
+        <div className="lg:w-7/12 flex items-center justify-center">
+          <div className="relative w-full max-w-lg aspect-square">
+            {/* Premium glow effects */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/15 via-white/5 to-transparent blur-3xl opacity-60" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/5 to-white/10 blur-2xl opacity-40" />
+            
+            {/* Chart container with premium styling */}
+            <div className="relative w-full h-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <defs>
+                    {chartData.map((segment) => (
+                      <linearGradient
+                        key={segment.gradientId}
+                        id={segment.gradientId}
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="100%"
+                      >
+                        <stop offset="0%" stopColor={segment.gradientColors[0]} stopOpacity={1} />
+                        <stop offset="50%" stopColor={segment.gradientColors[1]} stopOpacity={0.95} />
+                        <stop offset="100%" stopColor={segment.gradientColors[2]} stopOpacity={0.9} />
+                      </linearGradient>
+                    ))}
+                    {/* Premium glow filter */}
+                    <filter id={`${chartInstanceId}-glow`}>
+                      <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                      <feMerge>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={false}
+                    outerRadius="82%"
+                    innerRadius="48%"
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    strokeWidth={2}
+                    cornerRadius={16}
+                    dataKey="value"
+                    startAngle={90}
+                    endAngle={-270}
+                    paddingAngle={2}
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={`url(#${entry.gradientId})`}
+                        filter={`url(#${chartInstanceId}-glow)`}
+                        style={{
+                          filter: `drop-shadow(0 0 8px ${entry.color}40)`,
+                        }}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              
+              {/* Center label with premium styling */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {totalCount}
+                  </div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-white/50 font-medium">
+                    {totalCount === 1 ? "Investment" : "Investments"}
+                  </div>
+                  {totalUsd > 0 && (
+                    <div className="mt-2 pt-2 border-t border-white/10">
+                      <div className="text-sm font-semibold text-white/80">
+                        ${totalUsd.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-white/40 mt-0.5">
+                        Angel investments
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                {chartData.length > 0 ? (
-                  <div className="relative w-full h-48 flex items-center justify-center">
-                    {/* Glow behind chart */}
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 via-transparent to-white/10 blur-2xl" />
-
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <defs>
-                          <linearGradient id={segment.gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor={segment.color} stopOpacity={0.95} />
-                            <stop offset="50%" stopColor={segment.color} stopOpacity={0.85} />
-                            <stop offset="100%" stopColor={segment.color} stopOpacity={0.8} />
-                          </linearGradient>
-                          <filter id={segment.glowId}>
-                            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                            <feMerge>
-                              <feMergeNode in="coloredBlur" />
-                              <feMergeNode in="SourceGraphic" />
-                            </feMerge>
-                          </filter>
-                        </defs>
-                        <Pie
-                          data={displayData}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ percent }) =>
-                            percent > 0.12 ? `${(percent * 100).toFixed(0)}%` : ""
-                          }
-                          outerRadius={70}
-                          innerRadius={42}
-                          stroke="transparent"
-                          cornerRadius={16}
-                          dataKey="value"
-                          startAngle={90}
-                          endAngle={-270}
-                        >
-                          {displayData.map((entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={`url(#${segment.gradientId})`}
-                              filter={hasNonZero ? `url(#${segment.glowId})` : undefined}
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip
-                          formatter={(value: number) => `$${value.toLocaleString()}`}
-                          contentStyle={{
-                            backgroundColor: "rgba(0, 0, 0, 0.95)",
-                            border: "1px solid rgba(255, 255, 255, 0.3)",
-                            borderRadius: "8px",
-                            color: "#fff",
-                          }}
-                          itemStyle={{
-                            color: "#fff",
-                          }}
-                          labelStyle={{
-                            color: "#fff",
-                            fontWeight: "600",
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                ) : (
-                  <div className="h-48 flex items-center justify-center text-white/40 text-sm">
-                    No {segment.label.toLowerCase()} investments
-                  </div>
-                )}
               </div>
-            );
-          })}
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
-

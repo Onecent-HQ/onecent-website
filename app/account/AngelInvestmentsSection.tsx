@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import Button from "@/components/Button";
+import { useState } from "react";
 import Input from "@/components/Input";
 import Textarea from "@/components/Textarea";
 import MultiSelect from "@/components/MultiSelect";
 import SegmentedControl from "@/components/SegmentedControl";
-import Toast from "@/components/Toast";
-import { Plus, X, Trash2 } from "lucide-react";
+import { Plus, X } from "lucide-react";
 
 const NICHE_OPTIONS = [
   "DePIN",
@@ -31,8 +29,7 @@ const STAGE_OPTIONS = [
   { value: "later", label: "Later" },
 ];
 
-interface AngelInvestment {
-  _id?: string;
+export interface AngelInvestment {
   companyName: string;
   amountUsd: number;
   notes?: string;
@@ -40,248 +37,186 @@ interface AngelInvestment {
   stage: string;
 }
 
-export default function AngelInvestmentsSection() {
-  const [investments, setInvestments] = useState<AngelInvestment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState<AngelInvestment>({
-    companyName: "",
-    amountUsd: 0,
-    notes: "",
-    tags: [],
-    stage: "seed",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+interface AngelInvestmentsSectionProps {
+  angelInvestments: AngelInvestment[];
+  onChange: (investments: AngelInvestment[]) => void;
+}
 
-  const fetchInvestments = useCallback(async () => {
-    try {
-      const response = await fetch("/api/investments");
-      if (!response.ok) throw new Error("Failed to fetch");
-      const data = await response.json();
-      const angelInvestments = (data.investments || []).filter(
-        (inv: any) => inv.type === "angel"
-      );
-      setInvestments(angelInvestments);
-    } catch (error) {
-      console.error("Error fetching angel investments:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+export default function AngelInvestmentsSection({
+  angelInvestments = [],
+  onChange,
+}: AngelInvestmentsSectionProps) {
+  const [doesAngelInvest, setDoesAngelInvest] = useState<boolean | null>(
+    angelInvestments.length > 0 ? true : null
+  );
 
-  useEffect(() => {
-    fetchInvestments();
-  }, [fetchInvestments]);
+  const addInvestment = () => {
+    onChange([
+      ...angelInvestments,
+      {
+        companyName: "",
+        amountUsd: 0,
+        notes: "",
+        tags: [],
+        stage: "seed",
+      },
+    ]);
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.companyName || !formData.amountUsd) {
-      setToast({ message: "Please fill required fields", type: "error" });
-      return;
-    }
+  const updateInvestment = (index: number, field: keyof AngelInvestment, value: any) => {
+    const updated = [...angelInvestments];
+    updated[index] = { ...updated[index], [field]: value };
+    onChange(updated);
+  };
 
-    setIsSubmitting(true);
-    try {
-      const url = formData._id 
-        ? `/api/investments/${formData._id}`
-        : "/api/investments/angel";
-      
-      const method = formData._id ? "PUT" : "POST";
-      
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          companyName: formData.companyName,
-          amountUsd: formData.amountUsd,
-          notes: formData.notes,
-          tags: formData.tags,
-          stage: formData.stage,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to save");
-      
-      setToast({ message: formData._id ? "Investment updated" : "Investment added", type: "success" });
-      setShowForm(false);
-      setFormData({ companyName: "", amountUsd: 0, notes: "", tags: [], stage: "seed" });
-      fetchInvestments();
-    } catch (error) {
-      setToast({ message: "Failed to save investment", type: "error" });
-    } finally {
-      setIsSubmitting(false);
+  const removeInvestment = (index: number) => {
+    const updated = angelInvestments.filter((_, i) => i !== index);
+    onChange(updated);
+    if (updated.length === 0) {
+      setDoesAngelInvest(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      const response = await fetch(`/api/investments/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) throw new Error("Failed to delete");
-      
-      setToast({ message: "Investment removed", type: "success" });
-      fetchInvestments();
-    } catch (error) {
-      setToast({ message: "Failed to delete investment", type: "error" });
+  const handleToggle = (value: boolean) => {
+    setDoesAngelInvest(value);
+    if (value) {
+      // If they say yes and have no investments, add one empty form
+      if (angelInvestments.length === 0) {
+        addInvestment();
+      }
+    } else {
+      // If they say no, clear all investments
+      onChange([]);
     }
   };
-
-  const handleEdit = (investment: AngelInvestment) => {
-    setFormData(investment);
-    setShowForm(true);
-  };
-
-  if (isLoading) {
-    return <div className="text-white/60 text-sm">Loading...</div>;
-  }
 
   return (
     <div className="mt-6 space-y-6">
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {/* Question: Do you angel invest as well? */}
+      <div className="space-y-4">
+        <p className="text-sm font-medium text-white/90">
+          Do you angel invest as well?
+        </p>
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={() => handleToggle(true)}
+            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              doesAngelInvest === true
+                ? "bg-white text-black border border-white"
+                : "bg-white/5 text-white/80 border border-white/20 hover:bg-white/10"
+            }`}
+          >
+            Yes
+          </button>
+          <button
+            type="button"
+            onClick={() => handleToggle(false)}
+            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              doesAngelInvest === false
+                ? "bg-white text-black border border-white"
+                : "bg-white/5 text-white/80 border border-white/20 hover:bg-white/10"
+            }`}
+          >
+            No
+          </button>
+        </div>
+      </div>
 
-      {/* List of Angel Investments */}
-      {investments.length > 0 && (
-        <div className="space-y-3">
-          {investments.map((investment) => (
+      {/* Investment Forms - Only show if they answered Yes */}
+      {doesAngelInvest === true && (
+        <div className="space-y-6">
+          {angelInvestments.map((investment, index) => (
             <div
-              key={investment._id}
-              className="p-4 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 transition-colors"
+              key={index}
+              className="p-6 rounded-lg border border-white/20 bg-white/5 space-y-4"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-3">
-                    <h4 className="text-base font-semibold text-white">{investment.companyName}</h4>
-                    <span className="px-2 py-1 text-xs font-medium text-white/80 bg-white/10 rounded border border-white/20">
-                      {STAGE_OPTIONS.find(s => s.value === investment.stage)?.label || investment.stage}
-                    </span>
-                  </div>
-                  <p className="text-sm font-medium text-white">
-                    ${investment.amountUsd.toLocaleString()}
-                  </p>
-                  {investment.notes && (
-                    <p className="text-sm text-white/60">{investment.notes}</p>
-                  )}
-                  {investment.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {investment.tags.map((tag, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-1 text-xs rounded bg-white/10 text-white border border-white/20"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-2">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-sm font-semibold text-white">
+                  Investment {index + 1}
+                </h4>
+                {angelInvestments.length > 1 && (
                   <button
-                    onClick={() => handleEdit(investment)}
-                    className="px-3 py-1.5 text-xs text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded border border-white/20 transition-colors"
+                    type="button"
+                    onClick={() => removeInvestment(index)}
+                    className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    aria-label="Remove investment"
                   >
-                    Edit
+                    <X className="w-4 h-4" />
                   </button>
-                  <button
-                    onClick={() => investment._id && handleDelete(investment._id)}
-                    className="px-3 py-1.5 text-xs text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded border border-red-500/20 transition-colors"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                )}
+              </div>
+
+              <Input
+                label="Company Name *"
+                value={investment.companyName}
+                onChange={(e) =>
+                  updateInvestment(index, "companyName", e.target.value)
+                }
+                required
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Amount (USD) *"
+                  type="number"
+                  value={investment.amountUsd || ""}
+                  onChange={(e) =>
+                    updateInvestment(
+                      index,
+                      "amountUsd",
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  required
+                  min="0"
+                />
+
+                <div>
+                  <label className="block text-sm font-medium text-white/90 mb-2">
+                    Stage *
+                  </label>
+                  <SegmentedControl
+                    options={STAGE_OPTIONS}
+                    value={investment.stage}
+                    onChange={(value) =>
+                      updateInvestment(index, "stage", value)
+                    }
+                  />
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
 
-      {/* Add/Edit Form */}
-      {showForm ? (
-        <form onSubmit={handleSubmit} className="p-6 rounded-lg border border-white/20 bg-white/5 space-y-4">
-          <Input
-            label="Company Name *"
-            value={formData.companyName}
-            onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-            required
-          />
+              <Textarea
+                label="Notes (optional)"
+                value={investment.notes || ""}
+                onChange={(e) =>
+                  updateInvestment(index, "notes", e.target.value)
+                }
+                rows={3}
+              />
 
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Amount (USD) *"
-              type="number"
-              value={formData.amountUsd || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, amountUsd: parseFloat(e.target.value) || 0 })
-              }
-              required
-              min="0"
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-white/90 mb-2">
-                Stage *
-              </label>
-              <SegmentedControl
-                options={STAGE_OPTIONS}
-                value={formData.stage}
-                onChange={(value) => setFormData({ ...formData, stage: value })}
+              <MultiSelect
+                label="Tags"
+                options={NICHE_OPTIONS}
+                value={investment.tags || []}
+                onChange={(tags) => updateInvestment(index, "tags", tags)}
+                allowOther
+                maxSelections={6}
               />
             </div>
-          </div>
+          ))}
 
-          <Textarea
-            label="Notes (optional)"
-            value={formData.notes}
-            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            rows={3}
-          />
-
-          <MultiSelect
-            label="Tags"
-            options={NICHE_OPTIONS}
-            value={formData.tags}
-            onChange={(tags) => setFormData({ ...formData, tags })}
-            allowOther
-            maxSelections={6}
-          />
-
-          <div className="flex gap-3 pt-2">
-            <Button type="submit" disabled={isSubmitting} className="flex-1">
-              {isSubmitting ? "Saving..." : formData._id ? "Update" : "Add Investment"}
-            </Button>
-            <Button
-              type="button"
-              onClick={() => {
-                setShowForm(false);
-                setFormData({ companyName: "", amountUsd: 0, notes: "", tags: [], stage: "seed" });
-              }}
-              variant="secondary"
-            >
-              Cancel
-            </Button>
-          </div>
-        </form>
-      ) : (
-        <Button
-          type="button"
-          onClick={() => setShowForm(true)}
-          variant="secondary"
-          className="w-full sm:w-auto"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Angel Investment
-        </Button>
+          {/* Add Another Investment Button */}
+          <button
+            type="button"
+            onClick={addInvestment}
+            className="w-full px-5 py-2.5 rounded-lg text-sm font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20 transition-colors flex items-center justify-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add Another Investment
+          </button>
+        </div>
       )}
     </div>
   );
 }
-
