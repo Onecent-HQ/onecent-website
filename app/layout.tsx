@@ -33,12 +33,16 @@ export const metadata: Metadata = {
     title: appName,
     description: description,
     siteName: appName,
+    url: appUrl,
+    type: "website",
+    locale: "en_US",
     images: [
       {
-        url: `${appUrl}/og.png`,
+        url: `${appUrl}/opengraph-image`,
         width: 1200,
         height: 630,
         alt: appName,
+        type: "image/png",
       },
     ],
   },
@@ -46,7 +50,14 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: appName,
     description: description,
-    images: [`${appUrl}/og.png`],
+    images: [
+      {
+        url: `${appUrl}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: appName,
+      },
+    ],
   },
   metadataBase: new URL(appUrl || ""),
 };

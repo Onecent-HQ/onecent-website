@@ -13,6 +13,6 @@ export const config = {
      * - ALL auth API routes (critical for OAuth callback)
      * - public API routes
      */
-    "/((?!_next|favicon.ico|sitemap.xml|robots.txt|.*\\.jpg|.*\\.png|.*\\.svg|.*\\.gif|investors|profile|signin|api/auth|api/investors|api/profile).*)",
+    "/((?!_next|favicon.ico|sitemap.xml|robots.txt|opengraph-image|.*\\.jpg|.*\\.png|.*\\.svg|.*\\.gif|investors|profile|signin|api/auth|api/investors|api/profile).*)",
   ],
 };
