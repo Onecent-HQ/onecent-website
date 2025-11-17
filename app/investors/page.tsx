@@ -167,37 +167,39 @@ function InvestorsListContent() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Welcome Banner for New Users */}
+      {/* Navbar */}
+      <Navbar variant="investors" isNewUser={isNewUser} />
+
+      {/* Welcome Banner for New Users - Fixed above navbar */}
       {showWelcomeBanner && (
-        <div className="max-w-7xl mx-auto px-4 md:px-6 pt-6 pb-4">
-          <div className="relative p-5 rounded-xl bg-white/5 border border-white/20 backdrop-blur-sm">
-            <button
-              onClick={handleDismissWelcomeBanner}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
-              aria-label="Dismiss banner"
-            >
-              <X className="w-4 h-4" />
-            </button>
-            <div className="flex items-start gap-3 pr-10">
-              <Sparkles className="w-5 h-5 text-white/80 mt-0.5 flex-shrink-0" />
-              <div>
-                <h3 className="text-base font-semibold text-white mb-1">
-                  Hey! We see you&apos;re new here
-                </h3>
-                <p className="text-sm text-white/80 leading-relaxed">
-                  Let&apos;s create your profile! Click &quot;Create Your Profile&quot; to get started and showcase your investment focus.
-                </p>
+        <div className="fixed top-0 left-0 right-0 z-[60] bg-black/80 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 pt-24 pb-4">
+            <div className="relative p-5 rounded-xl bg-white/5 border border-white/20 backdrop-blur-sm">
+              <button
+                onClick={handleDismissWelcomeBanner}
+                className="absolute top-4 right-4 p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors z-10"
+                aria-label="Dismiss banner"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="flex items-start gap-3 pr-10">
+                <Sparkles className="w-5 h-5 text-white/80 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="text-base font-semibold text-white mb-1">
+                    Hey! We see you&apos;re new here
+                  </h3>
+                  <p className="text-sm text-white/80 leading-relaxed">
+                    Let&apos;s create your profile! Click &quot;Create Your Profile&quot; to get started and showcase your investment focus.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Navbar */}
-      <Navbar variant="investors" isNewUser={isNewUser} />
-
       {/* Header Section */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-28 pb-8">
+      <div className={`max-w-7xl mx-auto px-4 md:px-6 ${showWelcomeBanner ? 'pt-40' : 'pt-28'} pb-8`}>
         <div className="space-y-4">
           <h1 className="text-4xl md:text-5xl font-bold text-white">
             Investor <span className="text-white">Leaderboard</span>
