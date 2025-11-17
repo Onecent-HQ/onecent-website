@@ -4,6 +4,7 @@ import Link from "next/link";
 import Button from "@/components/Button";
 // import GlassCard from "@/components/GlassCard";
 import Prism from "@/components/Prism";
+import Logo from "@/components/Logo";
 // import { 
 //   Users, 
 //   TrendingUp, 
@@ -63,6 +64,11 @@ export default function HomePage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-black flex items-center justify-center">
+      {/* Logo - Top Left */}
+      <div className="fixed top-6 sm:top-8 left-4 sm:left-6 md:left-8 z-50">
+        <Logo logoHeight={32} />
+      </div>
+
       {/* Prism Background - Optimized for mobile and desktop */}
       <div className="fixed inset-0 z-0">
         <Prism 

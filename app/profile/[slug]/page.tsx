@@ -114,7 +114,7 @@ export default async function ProfilePage({ params }: { params: { slug: string }
         {/* Navigation Bar */}
         <ProfileNav />
         
-        <div className="relative mx-auto w-full max-w-6xl px-4 md:px-6 py-16">
+        <div className="relative mx-auto w-full max-w-6xl px-4 md:px-6 pt-24 pb-16">
           <GlassCard className="!p-0 overflow-hidden rounded-[32px] border border-white/10 bg-white/5 shadow-[0_35px_80px_rgba(0,0,0,0.3)] backdrop-blur-xl">
             <div className="relative">
               <div className="relative flex flex-col gap-12 p-8 md:p-12">

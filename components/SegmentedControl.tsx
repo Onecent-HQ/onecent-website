@@ -22,13 +22,13 @@ export default function SegmentedControl({
           {label}
         </label>
       )}
-      <div className={`inline-flex rounded-xl p-1 w-full ${isAccountPage ? 'bg-white/10' : 'bg-gray-100'}`}>
+      <div className={`flex flex-wrap rounded-xl p-1 w-full gap-1 ${isAccountPage ? 'bg-white/10' : 'bg-gray-100'}`}>
         {options.map((option) => (
           <button
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
-            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 min-w-[5rem] px-3 py-2 rounded-lg text-sm font-medium transition-all ${
               value === option.value
                 ? isAccountPage
                   ? "bg-white/20 text-white shadow-sm"

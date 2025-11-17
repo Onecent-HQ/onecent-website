@@ -17,9 +17,9 @@ import AngelInvestmentsSection from "./AngelInvestmentsSection";
 import { useUser } from "@civic/auth/react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { CheckCircle2, LogOut, ArrowLeft, XCircle, AlertCircle, Upload, X } from "lucide-react";
+import { CheckCircle2, XCircle, AlertCircle, Upload, X } from "lucide-react";
 import XLogo from "@/components/XLogo";
-import Logo from "@/components/Logo";
+import Navbar from "@/components/Navbar";
 import { isAuthInProgress, setAuthInProgress, clearAuthLock } from "@/lib/authLock";
 
 // Investments Section Component with Wallet Integration
@@ -204,123 +204,246 @@ const InvestmentsSection = memo(function InvestmentsSection({
         {/* Investments Table - Premium Format */}
         {investments.length > 0 && (
           <div className="mb-8">
-            <div className="relative overflow-x-auto rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-              <table className="w-full table-fixed">
-                <colgroup>
-                  <col className="w-[15%]" />
-                  <col className="w-[20%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[28%]" />
-                  <col className="w-[15%]" />
-                  <col className="w-[10%]" />
-                </colgroup>
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Project</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Token Address</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Holdings</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Tags</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-white/60 uppercase tracking-wider"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {investments.map((investment, index) => (
-                    <tr key={index} className="hover:bg-white/10 transition-colors group">
-                      <td className="px-6 py-5">
-                        <input
-                          type="text"
-                          value={investment.projectName}
-                          onChange={(e) => onUpdate(index, "projectName", e.target.value)}
-                          placeholder="Project name"
-                          className="w-full px-3 py-2 text-sm text-white bg-transparent border border-transparent rounded-md hover:border-white/50 focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
-                          required
-                        />
-                      </td>
-                      <td className="px-6 py-5">
-                        <input
-                          type="text"
-                          value={investment.tokenCA}
-                          onChange={(e) => onUpdate(index, "tokenCA", e.target.value.trim())}
-                          placeholder="Token address"
-                          className="w-full px-3 py-2 text-sm font-mono text-white bg-transparent border border-transparent rounded-md hover:border-white/50 focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
-                          required
-                        />
-                      </td>
-                      <td className="px-6 py-5">
-                        {investment.verified && investment.balance ? (
-                          <div className="flex flex-col gap-1">
-                            <span className="text-sm font-semibold text-white">
-                              {parseFloat(investment.balance).toLocaleString(undefined, {
-                                maximumFractionDigits: investment.decimals || 6,
-                                minimumFractionDigits: 0,
-                              })}
-                            </span>
-                            {investment.projectName && (
-                              <span className="text-xs text-white/60">
-                                {investment.projectName}
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <input
-                            type="number"
-                            value={investment.balance || ""}
-                            onChange={(e) => onUpdate(index, "balance", e.target.value)}
-                            placeholder="Enter holdings"
-                            min="0"
-                            step="any"
-                            className="w-full px-3 py-2 text-sm text-white bg-transparent border border-transparent rounded-md hover:border-white/50 focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
-                          />
-                        )}
-                      </td>
-                      <td className="px-6 py-5 align-top">
-                        <div className="min-w-[220px] max-w-xs">
-                        <div className="relative">
-                          <MultiSelect
-                            options={NICHE_OPTIONS}
-                            value={investment.tags || []}
-                            onChange={(tags) => onUpdateTags(index, tags)}
-                            allowOther
-                            maxSelections={6}
-                              portal
-                          />
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        {investment.verified ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            Verified
-                          </span>
-                        ) : investment.notInWallet && wallet.connected ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 text-white/70 border border-white/20">
-                            Unverified
-                          </span>
-                        ) : investment.tokenCA ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 text-white/70 border border-white/20">
-                            Unverified
-                          </span>
-                        ) : (
-                          <span className="text-sm text-white/40">—</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-5 text-right">
-                        <button
-                          type="button"
-                          onClick={() => onRemove(index)}
-                          className="text-sm text-white/60 hover:text-white font-medium px-3 py-1.5 rounded-md hover:bg-white/5 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          Remove
-                        </button>
-                      </td>
+            {/* Desktop: table layout */}
+            <div className="hidden md:block">
+              <div className="relative overflow-x-auto rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <table className="w-full table-fixed">
+                  <colgroup>
+                    <col className="w-[15%]" />
+                    <col className="w-[20%]" />
+                    <col className="w-[12%]" />
+                    <col className="w-[28%]" />
+                    <col className="w-[15%]" />
+                    <col className="w-[10%]" />
+                  </colgroup>
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Project</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Token Address</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Holdings</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Tags</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-white/60 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-right text-xs font-semibold text-white/60 uppercase tracking-wider"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {investments.map((investment, index) => (
+                      <tr key={index} className="hover:bg-white/10 transition-colors group">
+                        <td className="px-6 py-5">
+                          <input
+                            type="text"
+                            value={investment.projectName}
+                            onChange={(e) => onUpdate(index, "projectName", e.target.value)}
+                            placeholder="Project name"
+                            className="w-full px-3 py-2 text-sm text-white bg-transparent border border-transparent rounded-md hover:border-white/50 focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
+                            required
+                          />
+                        </td>
+                        <td className="px-6 py-5">
+                          <input
+                            type="text"
+                            value={investment.tokenCA}
+                            onChange={(e) => onUpdate(index, "tokenCA", e.target.value.trim())}
+                            placeholder="Token address"
+                            className="w-full px-3 py-2 text-sm font-mono text-white bg-transparent border border-transparent rounded-md hover:border-white/50 focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
+                            required
+                          />
+                        </td>
+                        <td className="px-6 py-5">
+                          {investment.verified && investment.balance ? (
+                            <div className="flex flex-col gap-1">
+                              <span className="text-sm font-semibold text-white">
+                                {parseFloat(investment.balance).toLocaleString(undefined, {
+                                  maximumFractionDigits: investment.decimals || 6,
+                                  minimumFractionDigits: 0,
+                                })}
+                              </span>
+                              {investment.projectName && (
+                                <span className="text-xs text-white/60">
+                                  {investment.projectName}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <input
+                              type="number"
+                              value={investment.balance || ""}
+                              onChange={(e) => onUpdate(index, "balance", e.target.value)}
+                              placeholder="Enter holdings"
+                              min="0"
+                              step="any"
+                              className="w-full px-3 py-2 text-sm text-white bg-transparent border border-transparent rounded-md hover:border-white/50 focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
+                            />
+                          )}
+                        </td>
+                        <td className="px-6 py-5 align-top">
+                          <div className="min-w-[220px] max-w-xs">
+                            <div className="relative">
+                              <MultiSelect
+                                options={NICHE_OPTIONS}
+                                value={investment.tags || []}
+                                onChange={(tags) => onUpdateTags(index, tags)}
+                                allowOther
+                                maxSelections={6}
+                                portal
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          {investment.verified ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Verified
+                            </span>
+                          ) : investment.notInWallet && wallet.connected ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 text-white/70 border border-white/20">
+                              Unverified
+                            </span>
+                          ) : investment.tokenCA ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 text-white/70 border border-white/20">
+                              Unverified
+                            </span>
+                          ) : (
+                            <span className="text-sm text-white/40">—</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => onRemove(index)}
+                            className="text-sm text-white/60 hover:text-white font-medium px-3 py-1.5 rounded-md hover:bg-white/5 transition-colors opacity-0 group-hover:opacity-100"
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            
+
+            {/* Mobile: stacked cards layout */}
+            <div className="space-y-4 md:hidden">
+              {investments.map((investment, index) => (
+                <div
+                  key={index}
+                  className="rounded-xl bg-white/5 border border-white/10 p-4 space-y-4"
+                >
+                  {/* Top row: project & status */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1">
+                      <label className="text-[11px] font-medium uppercase tracking-wide text-white/40">
+                        Project
+                      </label>
+                      <input
+                        type="text"
+                        value={investment.projectName}
+                        onChange={(e) => onUpdate(index, "projectName", e.target.value)}
+                        placeholder="Project name"
+                        className="mt-1 w-full px-3 py-2 text-sm text-white bg-transparent border border-white/15 rounded-md focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
+                        required
+                      />
+                    </div>
+                    <div className="flex-shrink-0">
+                      {investment.verified ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-green-500/20 text-green-400 border border-green-500/30">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Verified
+                        </span>
+                      ) : investment.notInWallet && wallet.connected ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-white/10 text-white/70 border border-white/20">
+                          Unverified
+                        </span>
+                      ) : investment.tokenCA ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-white/10 text-white/70 border border-white/20">
+                          Unverified
+                        </span>
+                      ) : (
+                        <span className="text-xs text-white/40">—</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Token address */}
+                  <div>
+                    <label className="text-[11px] font-medium uppercase tracking-wide text-white/40">
+                      Token Address
+                    </label>
+                    <input
+                      type="text"
+                      value={investment.tokenCA}
+                      onChange={(e) => onUpdate(index, "tokenCA", e.target.value.trim())}
+                      placeholder="Token address"
+                      className="mt-1 w-full px-3 py-2 text-sm font-mono text-white bg-transparent border border-white/15 rounded-md focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
+                      required
+                    />
+                  </div>
+
+                  {/* Holdings */}
+                  <div>
+                    <label className="text-[11px] font-medium uppercase tracking-wide text-white/40">
+                      Holdings
+                    </label>
+                    {investment.verified && investment.balance ? (
+                      <div className="mt-1 flex items-baseline gap-2">
+                        <span className="text-sm font-semibold text-white">
+                          {parseFloat(investment.balance).toLocaleString(undefined, {
+                            maximumFractionDigits: investment.decimals || 6,
+                            minimumFractionDigits: 0,
+                          })}
+                        </span>
+                        {investment.projectName && (
+                          <span className="text-xs text-white/60">
+                            {investment.projectName}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <input
+                        type="number"
+                        value={investment.balance || ""}
+                        onChange={(e) => onUpdate(index, "balance", e.target.value)}
+                        placeholder="Enter holdings"
+                        min="0"
+                        step="any"
+                        className="mt-1 w-full px-3 py-2 text-sm text-white bg-transparent border border-white/15 rounded-md focus:border-white focus:ring-2 focus:ring-white/20 focus:outline-none transition-all placeholder:text-white/40"
+                      />
+                    )}
+                  </div>
+
+                  {/* Tags */}
+                  <div>
+                    <label className="text-[11px] font-medium uppercase tracking-wide text-white/40">
+                      Tags
+                    </label>
+                    <div className="mt-1">
+                      <MultiSelect
+                        options={NICHE_OPTIONS}
+                        value={investment.tags || []}
+                        onChange={(tags) => onUpdateTags(index, tags)}
+                        allowOther
+                        maxSelections={6}
+                        portal
+                      />
+                    </div>
+                  </div>
+
+                  {/* Remove */}
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="button"
+                      onClick={() => onRemove(index)}
+                      className="text-xs text-white/60 hover:text-white font-medium px-3 py-1.5 rounded-md hover:bg-white/5 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {/* Warning for unverified tokens */}
             {investments.some(inv => inv.notInWallet && wallet.connected) && (
               <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/20">
@@ -1005,52 +1128,12 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Navigation Bar - Top */}
-      <nav className="relative fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/95 backdrop-blur-md">
-        {/* Subtle gradient overlay for premium feel */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-transparent pointer-events-none" />
-        
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
-          <div className="flex items-center justify-between h-16">
-            {/* Left Section */}
-            <div className="flex items-center gap-6">
-              <Logo logoHeight={36} />
-              <div className="h-6 w-px bg-white/10" />
-              <Link
-                href="/"
-                className="group flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white transition-all duration-200"
-              >
-                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-                <span>Back to Home</span>
-              </Link>
-              <div className="h-6 w-px bg-white/10" />
-              <Link
-                href="/investors"
-                className="text-sm font-medium text-white/60 hover:text-white transition-colors"
-              >
-                Browse Investors
-              </Link>
-            </div>
-            
-            {/* Right Section */}
-            <div className="flex items-center gap-3">
-              {user && (
-                <button
-                  onClick={handleLogout}
-                  className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 transition-all duration-200 shadow-sm hover:shadow-md backdrop-blur-sm"
-                >
-                  <LogOut className="w-4 h-4 transition-transform group-hover:rotate-12" />
-                  <span>Logout</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-black overflow-x-hidden">
+      {/* Navbar */}
+      <Navbar variant="account" onLogout={handleLogout} />
 
       {/* Header */}
-      <div className="mx-auto max-w-7xl px-4 md:px-6 pt-28 pb-8">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 pt-24 sm:pt-28 pb-8">
           <div className="space-y-3">
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-white">
               Your Profile

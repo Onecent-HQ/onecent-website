@@ -14,7 +14,7 @@ export default function Logo({
   href = "/",
   logoHeight = 32,
   className = "",
-  src = "/assets/logos/SS_logo.png",
+  src = "/assets/logos/Logo_2 Background Removed.png",
 }: LogoProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -48,7 +48,7 @@ export default function Logo({
         <span 
           className={`font-bold tracking-tight ${className}`}
           style={{
-            fontSize: `${logoHeight * 0.7}px`,
+            fontSize: `${logoHeight * 0.5}px`,
             lineHeight: 1,
             background: 'linear-gradient(135deg, #FFFFFF 0%, #E5E5E5 50%, #B3B3B3 100%)',
             WebkitBackgroundClip: 'text',
@@ -82,7 +82,7 @@ export default function Logo({
           width={logoHeight}
           className="object-contain flex-shrink-0"
           style={{ 
-            height: `${logoHeight}px`,
+            height: `${logoHeight * 1.3}px`,
             width: 'auto',
             display: 'block'
           }}
@@ -91,7 +91,7 @@ export default function Logo({
         <span 
           className={`font-bold tracking-tight ${className}`}
           style={{
-            fontSize: `${logoHeight * 0.7}px`,
+            fontSize: `${logoHeight * 0.5}px`,
             lineHeight: 1,
             background: 'linear-gradient(135deg, #FFFFFF 0%, #E5E5E5 50%, #B3B3B3 100%)',
             WebkitBackgroundClip: 'text',
@@ -120,7 +120,7 @@ export default function Logo({
         <span 
           className={`font-bold tracking-tight ${className}`}
           style={{
-            fontSize: `${logoHeight * 0.7}px`,
+            fontSize: `${logoHeight * 0.5}px`,
             lineHeight: 1,
             background: 'linear-gradient(135deg, #FFFFFF 0%, #E5E5E5 50%, #B3B3B3 100%)',
             WebkitBackgroundClip: 'text',

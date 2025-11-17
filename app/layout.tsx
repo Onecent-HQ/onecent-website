@@ -13,15 +13,20 @@ export const metadata: Metadata = {
   description: description,
   icons: {
     icon: [
-      { url: "/assets/logos/SS_logo.png", sizes: "512x512", type: "image/png" },
-      { url: "/assets/logos/SS_logo.png", sizes: "192x192", type: "image/png" },
-      { url: "/assets/logos/SS_logo.png", sizes: "96x96", type: "image/png" },
-      { url: "/assets/logos/SS_logo.png", sizes: "64x64", type: "image/png" },
-      { url: "/assets/logos/SS_logo.png", sizes: "32x32", type: "image/png" },
+      "/assets/logos/Logo_2 Background Removed.png",
+      { url: "/assets/logos/Logo_2 Background Removed.png", sizes: "512x512", type: "image/png" },
+      { url: "/assets/logos/Logo_2 Background Removed.png", sizes: "192x192", type: "image/png" },
+      { url: "/assets/logos/Logo_2 Background Removed.png", sizes: "96x96", type: "image/png" },
+      { url: "/assets/logos/Logo_2 Background Removed.png", sizes: "64x64", type: "image/png" },
+      { url: "/assets/logos/Logo_2 Background Removed.png", sizes: "48x48", type: "image/png" },
+      { url: "/assets/logos/Logo_2 Background Removed.png", sizes: "32x32", type: "image/png" },
+      { url: "/assets/logos/Logo_2 Background Removed.png", sizes: "16x16", type: "image/png" },
     ],
-    shortcut: "/assets/logos/SS_logo.png",
+    shortcut: [
+      { url: "/assets/logos/Logo_2 Background Removed.png", sizes: "192x192", type: "image/png" },
+    ],
     apple: [
-      { url: "/assets/logos/SS_logo.png", sizes: "180x180", type: "image/png" },
+      { url: "/assets/logos/Logo_2 Background Removed.png", sizes: "180x180", type: "image/png" },
     ],
   },
   openGraph: {
